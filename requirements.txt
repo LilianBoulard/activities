@@ -1,0 +1,8 @@
+sqlalchemy
+flask
+redis
+redis-om
+pydantic
+nltk
+requests
+pandas

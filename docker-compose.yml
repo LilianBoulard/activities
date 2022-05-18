@@ -1,0 +1,17 @@
+# Sets up the services for running the project
+
+networks:
+  db_bridge:
+    internal: true
+    driver: bridge
+
+services:
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    environment:
+      - TZ=Europe/Paris
+    restart: unless-stopped
+    network:
+      db_bridge
