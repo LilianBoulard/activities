@@ -6,4 +6,3 @@ pydantic
 nltk
 requests
 pandas
-text
