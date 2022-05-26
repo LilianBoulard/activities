@@ -51,7 +51,6 @@ def que_faire_a_paris() -> None:
             RedisDatabase.dbfilename.unlink()
         else:
             return
-
     # Searches for the 10k first events, with the timezone set on Paris.
     endpoint = ("https://opendata.paris.fr/api/records/1.0/search/"
                 "?dataset=que-faire-a-paris-&q="
@@ -62,7 +61,7 @@ def que_faire_a_paris() -> None:
         data = decode_json(r.text)
 
     records: List[Dict[str, Any]] = data['records']
-    events = [
+    events: List[Event] = [
         Event(**rec['fields']) for rec in records
     ]
     rdb.bulk_add(events)

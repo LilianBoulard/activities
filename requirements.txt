@@ -6,3 +6,6 @@ pydantic
 nltk
 requests
 pandas
+
+flask_sqlalchemy
+flask_login
