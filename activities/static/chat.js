@@ -5,7 +5,7 @@ function envoyer(){
                             "<div class='card w-100'>"+
                             "<div class='card-body'>"+
                                 "<p class='mb-0'>"+
-                                $("#textAreaExample2").val()+
+                                $("#user_input").val()+
                                "</p>"+
                             "</div>"+
                             "</div>"+
@@ -28,7 +28,7 @@ function envoyer(){
                                         "<div class='card'>"+
                                         "<div class='card-body'>"+
                                             "<p class='mb-0'>"+
-                                            result.msg+
+                                            result.message+
                                             "</p>"+
                                         "</div>"+
                                         "</div>"+
