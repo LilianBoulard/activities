@@ -4,7 +4,7 @@ from .database.sql.models import Event
 
 import dateutil
 from sqlalchemy.orm import sessionmaker
-from flask import Blueprint, render_template, jsonify
+from flask import Blueprint, render_template, jsonify, request
 
 app = Blueprint('main', __name__)
 Session = sessionmaker(bind=db)
@@ -38,7 +38,7 @@ def index():
 
 @app.route('/nltkresponse', methods=['POST', 'GET'])
 def nltkresponse():
-    results = {'msg': 'Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium chat box response'}
+    results = {'message': "C'est noté !"}
     return jsonify(results)
 
 
