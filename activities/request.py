@@ -9,10 +9,8 @@ Implements a request between the output of NLTK and the Redis database.
 """
 
 
-from ast import Str
-from distutils.log import ERROR
-from xmlrpc.client import DateTime
 from datetime import datetime
+import json
 
 
 class Request:
@@ -31,6 +29,8 @@ class Request:
     """
     DB connection && Request building
     """
+
+    
     
     """
     Name Function
@@ -38,13 +38,13 @@ class Request:
     def set_title_event(self, titre) -> None:       
         self.title =titre
     
-    def get_title_event(self) -> Str:
+    def get_title_event(self) -> str:
         return self.title
 
     """
     Date function
     """
-    def set_Date(self, Date :Str) -> None:
+    def set_Date(self, Date :str) -> None:
         nDate = datetime(Date)
         """if nDate < datetime.now().strftime("%d/%b/%Y"):
             return ERROR"""
@@ -53,13 +53,26 @@ class Request:
     """
     Localisation function
     """
-
     def set_localisation(self, localisation) -> None:
         if type(localisation) == int :
             self.emplacement = "(Arrondissement)"+localisation
-        elif type(localisation) == Str:
+        elif type(localisation) == str:
             self.emplacement = "(Ville)"+localisation
 
     """
     Tag function
     """
+    def get_theme(self, theme):
+        if type(theme) != type([]):
+            theme = [theme]
+        file = open('theme.json')
+        data = json.load(file)
+
+        check = all(item in data.values() for item in theme)
+
+        if check:
+            return theme
+        else:
+            return "Error"
+
+        
