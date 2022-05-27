@@ -1,8 +1,9 @@
 from flask import Flask
 
 from .database.sql import db
-from .app import app as blueprint
+from flask_sqlalchemy import SQLAlchemy
 
+db = SQLAlchemy()
 
 def create_app():
     app = Flask(__name__)
@@ -12,6 +13,8 @@ def create_app():
 
     db.init_app(app)
 
-    app.register_blueprint(blueprint)
+    from .app import app as app_blueprint
+
+    app.register_blueprint(app_blueprint)
 
     return app
