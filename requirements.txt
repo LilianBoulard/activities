@@ -6,6 +6,7 @@ pydantic
 nltk
 requests
 pandas
+python-dateutil
 
 flask_sqlalchemy
 flask_login

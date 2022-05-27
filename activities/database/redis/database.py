@@ -10,9 +10,10 @@ from __future__ import annotations
 
 import redis as rd
 
-from typing import List
+from typing import List, Any
 
-from .models import Event
+Event = Any
+#from .models import Event
 from ...config import (redis_server_address, redis_server_port,
                        redis_server_dbfilename, redis_server_config)
 

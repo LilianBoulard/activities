@@ -1,2 +1,2 @@
 from .database import RedisDatabase
-from .models import Event
+#from .models import Event
