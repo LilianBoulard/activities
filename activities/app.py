@@ -3,32 +3,27 @@ from .database.sql import db
 from .database.sql.models import Event
 
 import dateutil
+from datetime import datetime
 from sqlalchemy.orm import sessionmaker
 from flask import Blueprint, render_template, jsonify, request
 
-app = Blueprint('main', __name__)
-Session = sessionmaker(bind=db)
+app = Blueprint('app', __name__)
 
+#Session = sessionmaker(bind=db)
 
+@app.route('/newEvent',methods=['GET'])
 def populate_db():
-    df = pd.read_csv('doc/que-faire-a-paris-.csv', delimiter=';')
-    with Session() as session:
-        for i, line in df.iterrows():
-            lon, lat = map(float, line['Coordonnées géographiques'].split(','))
-            session.add(Event(
-                title=line['Titre'],
-                tags=line['Mots clés'],
-                date_start=dateutil.parser.isoparse(line['Date de début']),
-                longitude=lon,
-                latitude=lat,
-            ))
-        session.commit()
+    new_event= Event(id=1,title_event="cinema",tags="tag_cinema",date_start=datetime(1988,1,17),latitude=3,longitude=5)
+    db.session.add(new_event)
+    db.session.commit()
+    return render_template('index.html')
 
-
+@app.route('/allEvent',methods=['GET'])
 def describe_db():
-    with Session() as session:
-        res = session.query(Event)
-        print(type(res), len(res))
+    events=Event.query.all()
+    for event in events:
+        print(event.title_event)
+    return render_template('index.html')
 
 
 @app.route('/')
@@ -43,6 +38,3 @@ def nltkresponse():
     results = {'message': "C'est noté !"}
     return jsonify(results)
 
-
-populate_db()
-describe_db()
