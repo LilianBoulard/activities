@@ -1,3 +1,7 @@
+.container {
+    max-width: none;
+}
+
 #chat3 .form-control {
     border-color: transparent;
 }

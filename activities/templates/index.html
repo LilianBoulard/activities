@@ -6,17 +6,22 @@
   <div class="container py-5">
 
     <div class="row">
-      <div class="col-md-6 col-lg-7 col-xl-8">
-        <ul class="list-unstyled">
-          <div id="newMsg"></div>
-          <li class="bg-white mb-3">
+      <div id="mapinfo" class="col">
+        Test
+      </div>
+      <div id="chat" class="col">
+        <div class="list-unstyled">
+          <div id="conversation"></div>
+          <div class="bg-white mb-3">
             <div class="form-outline">
-              <textarea class="form-control" id="user_input" rows="4"></textarea>
-              <label class="form-label" for="user_input">Message</label>
+              <input class="form-control" id="user_input" placeholder="Entrez un message ici..." />
             </div>
-          </li>
+          </div>
           <button type="button" class="btn btn-info btn-rounded float-end" onclick="envoyer();">Send</button>
-        </ul>
+        </div>
+      </div>
+      <div id="eventlist" class="col">
+        Test
       </div>
     </div>
   </div>

@@ -36,8 +36,10 @@ def index():
     return render_template('index.html')
 
 
-@app.route('/nltkresponse', methods=['POST', 'GET'])
+@app.route('/nltkresponse', methods=['POST'])
 def nltkresponse():
+    #user_message = request.form['data']
+    #print(user_message)
     results = {'message': "C'est noté !"}
     return jsonify(results)
 
