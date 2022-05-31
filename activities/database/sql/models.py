@@ -17,4 +17,3 @@ class Event(UserMixin, db.Model):
 
     latitude = db.Column(db.Float(32))
     longitude = db.Column(db.Float(32))
-
