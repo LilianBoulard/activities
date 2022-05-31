@@ -4,6 +4,7 @@ Gets data from opendata.paris.fr and stores them in the Redis database.
 
 import requests
 import pandas as pd
+import re
 
 from typing import Dict, List, Any, Optional
 from datetime import datetime
@@ -65,12 +66,21 @@ def get_event_from_row(row: pd.Series) -> Optional[Event]:
 
     departement = row["Code postal"][:2]
     
-    #  prix_range =
+    #  prix_range = JE SAIS PAS QUOI METTTRE
     # Regex pour récupérer que les prix : ([0-9]+(\.|,)[0-9]+|[0-9]+)( ?)(a|à|-)( ?)([0-9]+(\.|,)[0-9]+|[0-9]+)( ?)(€|eur|EUR|euos)|([0-9]+(\.|,)[0-9]+)( ?)(€|eur|EUR|euos)|([0-9]+)( ?)(€|eur|EUR|euos)|(€|eur|EUR|euos)( ?)[0-9]+
     # Regex pour ne garder que les chiffres : [0-9]+(\.|,)[0-9]+|[0-9]+
     # L'idée est de caler dans une colonne le chiffre min matché par la regex précédente
     # De la même manière une colonne max avec cette même regex
+    if type_prix == 'payant':
+        all = re.match('([0-9]+(\.|,)[0-9]+|[0-9]+)( ?)(a|à|-)( ?)([0-9]+(\.|,)[0-9]+|[0-9]+)( ?)(€|eur|EUR|euos)|([0-9]+(\.|,)[0-9]+)( ?)(€|eur|EUR|euos)|([0-9]+)( ?)(€|eur|EUR|euos)|(€|eur|EUR|euos)( ?)[0-9]+)',row['Détail du prix'])
+        all_prix = []
         
+        for i in all:
+            temp = list(set(i))
+            temp.remove('')
+            price = re.search(r'[0-9]+(\.|,)[0-9]+|[0-9]+',''.join(temp))
+            all_prix.append(int(price.group()))
+                
 
     return Event(
         url_dataparis = url_dataparis,
@@ -93,9 +103,9 @@ def get_event_from_row(row: pd.Series) -> Optional[Event]:
         tel = tel,
         mail = mail,
         type_prix = type_prix,
+        prix_min = min(all_prix),
+        prix_max = max(all_prix),
         prix_range = prix_range,
-        # prix_min = prix_min,
-        # prix_max = prix_max,
         resa = resa,
         url_resa = url_resa
     )
