@@ -16,16 +16,40 @@ import json
 class Request:
 
 
-    def __init__(self, title = None, emplacement = None, theme = None, date = None, price = None) -> None:
+    def __init__(self, title = None, lieu = None, theme = None, date = None, price = None) -> None:
         
         self.title = title #Str
-        self.emplacement = emplacement #Str
+        self.lieu = lieu #Str
         self.theme = theme #Str
         self.date = date #DateTime
         self.price = price #Bool or Range
         self.requete = None
 
+    """
+    Update
+    """
+    def update(self,tag,chaine):
 
+        if tag == 'lieu':
+            self.update_lieu(chaine)
+        elif tag == 'theme':
+            self.update_theme(chaine)
+        elif tag == 'date':
+            self.update_date(chaine)
+        elif tag == 'price':
+            self.update_price(chaine)
+
+    def update_lieu(self,chaine):
+        pass
+    
+    def update_theme(self,chaine):
+        pass
+    
+    def update_date(self,chaine):
+        pass
+    
+    def update_price(self,chaine):
+        pass
     """
     DB connection && Request building
     """
