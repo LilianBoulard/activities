@@ -8,27 +8,32 @@ Implements a request between the output of NLTK and the Redis database.
     -localisation
 """
 
-
-from datetime import datetime
 import json
+
+from typing import List
+from datetime import datetime
+
+from .database.sql.models import Event
 
 
 class Request:
 
+    def __init__(self):
+        pass
 
-    def __init__(self, title = None, lieu = None, theme = None, date = None, price = None) -> None:
-        
-        self.title = title #Str
-        self.lieu = lieu #Str
-        self.theme = theme #Str
-        self.date = date #DateTime
-        self.price = price #Bool or Range
-        self.requete = None
+    def query(self) -> List[Event]:
+        """
+        Queries the database, returning the list of events matching the
+        criterion set in this instance.
+        """
+        events = Event.query.all()
+
+        return events
 
     """
     Update
     """
-    def update(self,tag,chaine):
+    def update(self, tag, chaine):
 
         if tag == 'lieu':
             self.update_lieu(chaine)
@@ -39,16 +44,16 @@ class Request:
         elif tag == 'price':
             self.update_price(chaine)
 
-    def update_lieu(self,chaine):
+    def update_lieu(self, chaine):
         pass
     
-    def update_theme(self,chaine):
+    def update_theme(self, chaine):
         pass
     
-    def update_date(self,chaine):
+    def update_date(self, chaine):
         pass
     
-    def update_price(self,chaine):
+    def update_price(self, chaine):
         pass
     """
     DB connection && Request building

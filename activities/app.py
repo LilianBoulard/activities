@@ -1,9 +1,12 @@
+import dateutil
 import pandas as pd
+
+from .nlp import Model
 from .database.sql import db
+from .config import model_cookie_name
 from .database.sql.models import Event
 
-import dateutil
-from flask import Blueprint, render_template, jsonify, request
+from flask import Blueprint, render_template, jsonify, request, session
 
 app = Blueprint('app', __name__)
 
@@ -22,7 +25,7 @@ def populate_db():
     for i, line in df.iterrows():
         lon, lat = map(float, line['Coordonnées géographiques'].split(','))
         db.session.add(Event(
-            title_event=line['Titre'],
+            title_event=line['Titre'],  # TODO: rename to "title"
             tags=line['Mots clés'],
             date_start=dateutil.parser.isoparse(line['Date de début']),
             longitude=lon,
@@ -42,12 +45,26 @@ def describe_db():
 
 @app.route('/')
 def index():
+    # Create a new model instance
+    model = Model()
+    # Store the empty model in the session.
+    # This also has the side effect of removing previously stored models.
+    session[model_cookie_name] = model.to_json()
     return render_template('index.html')
 
 
 @app.route('/nltkresponse', methods=['POST'])
 def nltkresponse():
-    user_message = request.get_json()
-    print(user_message)
-    results = {'message': "C'est noté !"}
+    user_message: str = request.get_json()
+    # Get model information from the session.
+    # If there is no stored information, creates a new model.
+    model_info = session.get(model_cookie_name, '')
+    # Create the model object from the info we got
+    model = Model.from_json(model_info)
+    if model.interpret_user_input(user_message):
+        # The model has understood the message, and has updated the request.
+        events = model.request.query()
+        # TODO: use `events`
+
+    results = {'message': f"J'ai bien noté {user_message!r}"}
     return jsonify(results)
