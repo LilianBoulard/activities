@@ -12,14 +12,15 @@ function envoyer(){
         "<img src='/static/user.png' alt='avatar' class='rounded-circle d-flex align-self-start ms-3 shadow-1-strong' width='60'>" +
     "</li>");
 
-    // Empty the input field
-    $("#user_input").val("");
+    
 
 
     $.ajax({
         type: "POST",
         url: "/nltkresponse",
         data: JSON.stringify($("#user_input").val()),
+        contentType: "application/json",
+        dataType: 'json',
         success: function(result) {
             $("#conversation").append(
             "<li class='d-flex justify-content-between mb-4'>" +
@@ -35,4 +36,7 @@ function envoyer(){
             "</li>");
         } 
       });
+    console.log($("#user_input").val());
+    // Empty the input field
+    $("#user_input").val("");
 }

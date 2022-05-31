@@ -47,7 +47,7 @@ def index():
 
 @app.route('/nltkresponse', methods=['POST'])
 def nltkresponse():
-    #user_message = request.form['data']
-    #print(user_message)
+    user_message = request.get_json()
+    print(user_message)
     results = {'message': "C'est noté !"}
     return jsonify(results)
