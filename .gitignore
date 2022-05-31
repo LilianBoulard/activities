@@ -133,3 +133,6 @@ dmypy.json
 
 # Documents
 doc/
+
+# Flask secret key
+secret_key
