@@ -2,6 +2,7 @@
 Implements a request capable of querying the database, given some criterion.
 """
 
+from functools import reduce
 from datetime import date as Date
 from typing import List, Optional
 
@@ -70,6 +71,16 @@ class Request:
             )
 
         # Tags criteria
+        if self.tags is not None:
+            # For each tag, create a criteria and "and" all of them together.
+            # For example, if we got two tags, "concert" and "jazz",
+            # the final criteria (`tags_criteria`) is equivalent to doing
+            # `"concert" in Event.tags and "jazz" in Event.tags`
+            tags_criterion = []
+            for tag in self.tags:
+                tags_criterion.append(tag in Event.tags)
+            tags_criteria = reduce(lambda occ, elem: occ and elem, tags_criterion)
+            criterion.append(tags_criteria)
 
         # Location criteria
 
