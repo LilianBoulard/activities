@@ -49,6 +49,8 @@ The chatbot is powered by [NLTK](https://www.nltk.org/) with its machine learnin
 
 ## 🔌 Usage
 
+### 🐳 Docker
+
 The simplest way to run this project is to use [Docker](https://www.docker.com/),
 and more specifically, [docker-compose](https://docs.docker.com/compose/).
 
@@ -57,3 +59,14 @@ To do that, install both and run
 ```commandline
 sudo docker-compose up -d
 ```
+
+### 🐍 Directly with Python
+
+If you can't use docker, 
+you can run the project by installing [python](https://python.org/download) and the dependencies:
+
+```commandline
+pip install -r requirement.txt
+```
+
+and then run `./run_server.sh`
