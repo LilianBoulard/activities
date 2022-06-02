@@ -63,8 +63,13 @@ def nltkresponse():
     model = Model.from_json(model_info)
     if model.interpret_user_input(user_message):
         # The model has understood the message, and has updated the request.
-        events = model.request.query()
-        # TODO: use `events`
+        query_result = model.request.query()
+        events = [event.to_json for event in query_result]
+    else:
+        events = None
 
-    results = {'message': f"J'ai bien noté {user_message!r}"}
+    results = {
+        'message': f"J'ai bien noté {user_message!r}",
+        'events': events
+    }
     return jsonify(results)
