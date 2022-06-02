@@ -1,12 +1,19 @@
+"""
+Implements the Natural Language Processing functionalities.
+
+Resources:
+- Named Entity Recognition
+    - https://towardsdatascience.com/named-entity-recognition-with-nltk-and-spacy-8c4a7d88e7da
+- Dependency parsing
+    - https://universaldependencies.org/u/dep/
+"""
+
 from __future__ import annotations
 
 import spacy
 
-from collections import Counter
-
-
 from .request import Request
-from .utils import decode_json
+from .utils import encode_json, decode_json, zip_to_dict
 
 
 class Model:
@@ -23,7 +30,7 @@ class Model:
     """
 
     def __init__(self):
-        # Load the French accurate pipeline
+        # Load French tokenizer, tagger, parser and NER
         self._nlp = spacy.load('fr_dep_news_trf')
         self.request = Request()
 
@@ -36,9 +43,15 @@ class Model:
         # Process the user input with the NLP pipeline
         document = self._nlp(user_input)
 
-        labels = Counter([doc.label_ for doc in document.ents])
-        labels = sorted(labels, reverse=True)
-        # In `labels` the first is the most common, the last the least.
+        # Convert the text and labels to a dictionary mapping each label to a
+        # list of texts.
+        labels = zip_to_dict([(ent.text, ent.label_) for ent in document.ents])
+
+        # Process the date
+
+        # Process the type
+
+        # Process the price
 
         return False
 
@@ -59,4 +72,4 @@ class Model:
         Returns this model as a JSON-encoded string, which can then be stored
         in a user cookie.
         """
-        return vars(self)
+        return encode_json(vars(self))

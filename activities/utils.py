@@ -3,6 +3,9 @@ import json
 
 from .config import secret_key_file
 
+from typing import List, Tuple, Dict
+from collections import defaultdict
+
 
 def secret_key() -> bytes:
     """
@@ -31,3 +34,17 @@ def decode_json(json_string: str) -> dict:
     Takes a message as a JSON string and unpacks it to get a dictionary.
     """
     return json.JSONDecoder().decode(json_string)
+
+
+def zip_to_dict(items: List[Tuple[str, str]]) -> Dict[str, List[str]]:
+    """
+    Converts a zip (a list of 2-tuples) to a dictionary representation.
+
+    Example:
+        >>> zip_to_dict([("Google", "ORG"), ("NASA", "GOV"), ("FBI", "GOV")])
+        {"ORG": ["Google"], "GOV": ["NASA", "FBI"]}
+    """
+    final = defaultdict()
+    for key, value in items:
+        final[key].append(value)
+    return final
