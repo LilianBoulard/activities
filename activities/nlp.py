@@ -64,7 +64,7 @@ class Model:
         """
         model = cls()
         for key, value in decode_json(cookie):
-            model.__setattr__(key, value)
+            model.request.__setattr__(key, value)
         return model
 
     def to_json(self) -> str:
@@ -72,4 +72,4 @@ class Model:
         Returns this model as a JSON-encoded string, which can then be stored
         in a user cookie.
         """
-        return encode_json(vars(self))
+        return encode_json(vars(self.request))
