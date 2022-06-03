@@ -1,1 +1,1 @@
-from singleton import SingletonMeta, Singleton, apply_init_callback_to_singleton
+from .singleton import SingletonMeta, Singleton, apply_init_callback_to_singleton
