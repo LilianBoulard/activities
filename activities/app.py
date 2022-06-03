@@ -64,8 +64,10 @@ def nltkresponse():
     if model.interpret_user_input(user_message):
         # The model has understood the message, and has updated the request.
         query_result = model.request.query()
-        events = [event.to_json for event in query_result]
+        events = [event.to_json() for event in query_result]
     else:
+        # In this case, the list of events on the web page should not change.
+        # We pass None (json "null") to denote that.
         events = None
 
     results = {

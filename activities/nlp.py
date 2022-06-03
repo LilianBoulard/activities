@@ -14,6 +14,27 @@ import spacy
 
 from .request import Request
 from .utils import encode_json, decode_json, zip_to_dict
+from .design import Singleton, apply_init_callback_to_singleton
+
+
+def load_nlp(instance):
+    instance.nlp = spacy.load('fr_dep_news_trf')
+
+
+@apply_init_callback_to_singleton(load_nlp)
+class NLP(Singleton):
+    """
+    Magic singleton class used to hold the spacy NLP pipeline(s)
+    in a single location.
+    Advantages:
+    - Faster model creation, because we don't need to load the NLP each time
+    - Better memory efficiency, because we don't have a unique NLP in each session
+
+    Holds the NLP pipelines used to extract information from user input.
+    """
+
+    def __call__(self, user_input: str) -> spacy.Language:
+        return self.nlp(user_input)
 
 
 class Model:
@@ -31,7 +52,7 @@ class Model:
 
     def __init__(self):
         # Load French tokenizer, tagger, parser and NER
-        self._nlp = spacy.load('fr_dep_news_trf')
+        self._nlp = NLP()
         self.request = Request()
 
     def interpret_user_input(self, user_input: str) -> bool:
