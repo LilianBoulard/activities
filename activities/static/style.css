@@ -1,5 +1,40 @@
-.container {
+* {
+  box-sizing: border-box;
+}
+
+html {
+    height:100%;
+}
+
+body {
+    height:100%;
+}
+
+.hero {
+    height:100%;
+    width:100%;
+}
+
+.container-fluid {
     max-width: none;
+    position: relative;
+}
+
+# https://stackoverflow.com/questions/10865717/multi-column-vertical-scrolling-in-css-javascript
+.vertical-scrollable {
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+
+.row {
+    height: 100%;
+}
+
+#user_input {
+    position: absolute;
+    bottom: 0;
+    width: auto;
+    margin-bottom: 5px;
 }
 
 #chat3 .form-control {
@@ -9,6 +44,11 @@
 #chat3 .form-control:focus {
     border-color: transparent;
     box-shadow: inset 0px 0px 0px 1px transparent;
+}
+
+.col {
+    width: 100%;
+    max-width: 100%;
 }
 
 .badge-dot {
