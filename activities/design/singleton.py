@@ -56,7 +56,7 @@ def apply_init_callback_to_singleton(callback, **callback_kwargs):
     """
     Decorator that takes a callback as argument, which will be passed
     a single positional argument: the new singleton instance, and
-    additionally the keyword arguments passed ith `callback_kwargs`.
+    additionally the keyword arguments passed with `callback_kwargs`.
     This works pretty much like `__init__`.
     This instance can be altered (e.g., modifying / setting attributes).
     Refer to `SingletonMeta.__call__` for more information.
