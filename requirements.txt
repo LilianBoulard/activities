@@ -8,6 +8,9 @@ requests
 pandas
 python-dateutil
 spacy
+pytz
+parsedatetime
+python-Levenshtein
 
 flask_sqlalchemy
 flask_login
