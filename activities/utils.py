@@ -47,4 +47,4 @@ def zip_to_dict(items: List[Tuple[str, str]]) -> Dict[str, List[str]]:
     final = defaultdict()
     for key, value in items:
         final[key].append(value)
-    return final
+    return dict(final)
