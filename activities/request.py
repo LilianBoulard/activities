@@ -6,6 +6,7 @@ from functools import reduce
 from datetime import date as Date
 from typing import List, Optional
 
+from .utils import encode_json, decode_json
 from .database.sql.models import Event
 
 
@@ -86,3 +87,14 @@ class Request:
 
         events = Event.query(*criterion)
         return events
+
+    @classmethod
+    def from_json(cls, info: str):
+        req = cls()
+        # Set all values in info programmatically
+        for key, value in decode_json(info):
+            req.__setattr__(key, value)
+        return req
+
+    def to_json(self):
+        return encode_json(vars(self))

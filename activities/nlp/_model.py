@@ -11,6 +11,7 @@ Resources:
 from __future__ import annotations
 
 from typing import List
+from spacy.tokens import Doc
 
 from .languages import FRNLP
 from ..request import Request
@@ -63,7 +64,7 @@ class Model:
         understood_something = False
 
         # Process the user input with the NLP pipeline
-        document = self._nlp(user_input)
+        document: Doc = self._nlp(user_input)
 
         # Convert the text and labels to a dictionary mapping each label to a
         # list of texts.
@@ -79,6 +80,7 @@ class Model:
                     self.request.date_lower_bound = date_start
                     self.request.date_upper_bound = date_end
                     understood_something = True
+                    print(date_start, date_end, understood_something)
 
         # Process the type
         unique_types: List[str] = []
@@ -99,9 +101,11 @@ class Model:
         and construct a model from this data.
         The string can be empty, in which case a new model is created.
         """
-        model = cls()  # TODO: set language depending on info
-        for key, value in decode_json(info):
-            model.request.__setattr__(key, value)
+        info_dec = decode_json(info)
+        # Instantiate with language
+        model = cls(info_dec.pop('language'))
+        # Set the request
+        model.request = Request.from_json(info_dec.pop('request'))
         return model
 
     def to_json(self) -> str:
@@ -109,4 +113,7 @@ class Model:
         Returns this model as a JSON-encoded string, which can then be stored
         in a user cookie.
         """
-        return encode_json(vars(self.request))
+        return encode_json({
+            'language': self.language,
+            'request': self.request.to_json(),
+        })
