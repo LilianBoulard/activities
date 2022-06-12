@@ -2,15 +2,17 @@
 Gets data from opendata.paris.fr and stores them in the Redis database.
 """
 
-import requests
-import pandas as pd
 import re
+import requests
 
-from typing import Dict, List, Any, Optional
+from functools import reduce
 from datetime import datetime
+from dateutil.parser import isoparse
+from typing import Dict, List, Any, Optional
 
-from activities.database.redis import RedisDatabase, Event
-from activities.utils import decode_json
+from activities.database.redis import RedisDatabase
+from activities.database.redis.models import Event
+from activities.utils import decode_json, price_regex
 
 
 headers = {
@@ -23,103 +25,158 @@ headers = {
 }
 
 
-def get_event_from_row(row: pd.Series) -> Optional[Event]:
+def get_event_from_row(row: dict) -> Optional[Event]:
 
-    if row['Date de début'] is None:
+    title = row.get('title', None)
+    if not title:
         return
 
-    if row['Date de fin'] is None:
+    tags = row.get('tags', None)
+    if not tags:
         return
 
-    if row['Coordonnées géographiques'] is None:
+    # Process reservation info
+    reservation_required_val = row.get('access_type', None)
+    if not reservation_required_val:
+        return
+    reservation_map = {
+        'non': False,
+        'conseillée': True,
+        'obligatoire': True,
+    }
+    if reservation_required_val not in reservation_map.keys():
+        print(f'Unknown access type: {reservation_required_val!r}')
+        return
+    reservation_required = reservation_map[reservation_required_val]
+
+    reservation_url = row.get('access_link', '')
+    if not reservation_url and reservation_required:
         return
 
-    if row['Mots clés'] is None:
+    reservation_url_description = row.get('access_link_text', 'Billetterie')
+
+    # Process `date_start`
+    date_start_val = row.get('date_start', None)
+    if not date_start_val:
         return
+    date_start = isoparse(date_start_val)
 
-    url_dataparis = row["URL"]
-    url_event = row["Url de contact"]
-    title = row["Title"]
-    date_start = row["Date de début"]
-    date_end = row["Date de fin"]
-    occurence = row["Occurrences"]
-    tags = row["Mots clés"]
-    lieu = row["Nom du lieu"]
-    cp = row["Code postal"]
-    ville = row["Ville"]
-    long_lat = row["Coordonnées géographiques"]
-    h_pmr = row["Accès PMR"]
-    h_m_voyant =  row["Accès mal voyant"]
-    h_m_entendant = row["Accès mal entendant"]
-    transport = row["Transport"]
-    tel = row["Téléphone de contact"]
-    mail = row["Email de contact"]
-    type_prix = row["Type de prix"]
-    resa = row["Type d'accès"]
-    url_resa = row["URL de réservation"]
+    # Process occurrences (`date_end`)
+    occurrences_val = row.get('occurrences', None)
+    if not occurrences_val:
+        return  # FIXME: Mandatory ?
+    occurrences = occurrences_val.split(';')
+    occurrences_start_end = [
+        (start, end)
+        for occ in occurrences
+        for start, end in occ.split('_')
+    ]
+    occurrences_start: List[datetime] = [
+        isoparse(occ[0]) for occ in occurrences_start_end
+    ]
+    # Get the last occurrence (date-wise), which will be our `date_end`
+    date_end = reduce(lambda acc, occ: acc if acc > occ else occ, occurrences_start)
 
-    code_postal = row["Code postal"]
-    if code_postal.startswith('75'):
-        arrondissement = code_postal[-2:]
+    # Process prices
+    price_type = row.get('price_type', None)
+    if not price_type:
+        return
+    price_detail = row.get('price_detail', None)
+    if not price_detail:
+        # TODO: Edge cases:
+        #  - "Sur réservation"
+        return
+    if price_type == 'payant':
+        found_prices = re.findall(price_regex, price_detail)
+
+        # FIXME: Hackish
+        all_prices = []
+        for price_matches in found_prices:
+            # Remove duplicates
+            matches = list(set(price_matches))
+            # Remove empty values
+            matches.remove('')
+            # Keep only the first integer value
+            for match in matches:
+                try:
+                    price = int(match)
+                    break
+                except ValueError:
+                    continue
+            else:
+                # If we did not find any integer value,
+                # print a warning and skip this price
+                print(f'Match did not contain any price: {matches}')
+                continue
+            all_prices.append(price)
     else:
-        arrondissement = 0
+        all_prices = [0]
 
-    departement = row["Code postal"][:2]
-    
-    #  prix_range = JE SAIS PAS QUOI METTTRE
-    # Regex pour récupérer que les prix : ([0-9]+(\.|,)[0-9]+|[0-9]+)( ?)(a|à|-)( ?)([0-9]+(\.|,)[0-9]+|[0-9]+)( ?)(€|eur|EUR|euos)|([0-9]+(\.|,)[0-9]+)( ?)(€|eur|EUR|euos)|([0-9]+)( ?)(€|eur|EUR|euos)|(€|eur|EUR|euos)( ?)[0-9]+
-    # Regex pour ne garder que les chiffres : [0-9]+(\.|,)[0-9]+|[0-9]+
-    # L'idée est de caler dans une colonne le chiffre min matché par la regex précédente
-    # De la même manière une colonne max avec cette même regex
-    if type_prix == 'payant':
-        all = re.match('([0-9]+(\.|,)[0-9]+|[0-9]+)( ?)(a|à|-)( ?)([0-9]+(\.|,)[0-9]+|[0-9]+)( ?)(€|eur|EUR|euos)|([0-9]+(\.|,)[0-9]+)( ?)(€|eur|EUR|euos)|([0-9]+)( ?)(€|eur|EUR|euos)|(€|eur|EUR|euos)( ?)[0-9]+)',row['Détail du prix'])
-        all_prix = []
-        
-        for i in all:
-            temp = list(set(i))
-            temp.remove('')
-            price = re.search(r'[0-9]+(\.|,)[0-9]+|[0-9]+',''.join(temp))
-            all_prix.append(int(price.group()))
-                
+    # Process geographic location
+    place = row.get('address_name', None)
+    if not place:
+        return
+    street = row.get('address_street', None)
+    if not street:
+        return
+    city = row.get('address_city', None)
+    if not city:
+        return
+    zipcode = row.get("address_zipcode", None)
+    if not zipcode:
+        return
+    department = int(zipcode[:2])
+    district = zipcode[-2:] if zipcode.startswith('75') else 0
+
+    lat, lon = row.get('lat_lon', (None, None))
+    if not lat or not lon:
+        return
 
     return Event(
-        url_dataparis = url_dataparis,
-        url_event = url_event,
-        title = title,
-        date_start = date_start,
-        date_end = date_end,
-        occurence = occurence,
-        tags = tags,
-        lieu = lieu,
-        cp = cp,
-        departement = departement,
-        arrondissement = arrondissement,
-        ville = ville,
-        long_lat = long_lat,
-        h_pmr = h_pmr,
-        h_m_voyant = h_m_voyant,
-        h_m_entendant = h_m_entendant,
-        transport = transport,
-        tel = tel,
-        mail = mail,
-        type_prix = type_prix,
-        prix_min = min(all_prix),
-        prix_max = max(all_prix),
-        prix_range = prix_range,
-        resa = resa,
-        url_resa = url_resa
+        title=title,
+        tags=tags,
+
+        reservation_required=reservation_required,
+        reservation_url=reservation_url,
+        reservation_url_description=reservation_url_description,
+
+        date_start=date_start,
+        date_end=date_end,
+
+        price_type=price_type,
+        price_detail=price_detail,
+        price_start=min(all_prices),
+        price_end=max(all_prices),
+
+        contact_url=row.get('contact_url', ''),
+        contact_mail=row.get('contact_mail', ''),
+        contact_phone=row.get('contact_phone', ''),
+        contact_facebook=row.get('contact_facebook', ''),
+        contact_twitter=row.get('contact_twitter', ''),
+
+        place=place,
+        street=street,
+        city=city,
+        zipcode=zipcode,
+        department=department,
+        district=district,
+
+        latitude=lat,
+        longiture=lon,
+
+        blind=bool(row.get('blind', 0)),
+        deaf=bool(row.get('deaf', 0)),
+        pmr=bool(row.get('pmr', 0)),
     )
 
 
-
-def get_clean_events(df: pd.Dataframe) -> List[Event]:
+def get_clean_events(records: list) -> List[Event]:
     clean_events: List[Event] = []
 
-    for index, row in df.iterrows():
+    for record in records:
         index: int
-        row: pd.Series
 
-        event = get_event_from_row(row)
+        event = get_event_from_row(record['fields'])
         if event is not None:
             clean_events.append(event)
 
@@ -166,10 +223,7 @@ def que_faire_a_paris() -> None:
         data = decode_json(r.text)
 
     records: List[Dict[str, Any]] = data['records']
-    events: List[Event] = [
-        Event(**rec['fields']) for rec in records
-    ]
-    rdb.bulk_add(events)
+    rdb.bulk_add(get_clean_events(records))
     rdb.save()
 
 

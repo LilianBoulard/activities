@@ -38,7 +38,8 @@ def decode_json(json_string: str) -> dict:
 
 def zip_to_dict(items: List[Tuple[str, str]]) -> Dict[str, List[str]]:
     """
-    Converts a zip (a list of 2-tuples) to a dictionary representation.
+    Converts a zip (a list of 2-tuples) to a dictionary representation
+    by using the first field as the value and the second as the key.
 
     Example:
         >>> zip_to_dict([("Google", "ORG"), ("NASA", "GOV"), ("FBI", "GOV")])
@@ -48,3 +49,7 @@ def zip_to_dict(items: List[Tuple[str, str]]) -> Dict[str, List[str]]:
     for key, value in items:
         final[key].append(value)
     return dict(final)
+
+
+_euro = "€|eur|EUR|euros"
+price_regex = f'(\\d+(\\.|,)\\d+|\\d+)( ?)(a|à|-)( ?)(\\d+(\\.|,)\\d+|\\d+)( ?)|(\\d+(\\.|,)\\d+)( ?)({_euro})|(\\d+)( ?)({_euro})|({_euro})( ?)(\\d+)'
