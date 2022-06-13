@@ -47,7 +47,7 @@ services:
       - FLASK_APP=activities
       - FLASK_RUN_HOST=0.0.0.0
     restart: unless-stopped
-    command: bash -c "mkdir /app && cd /app && git clone https://github.com:LilianBoulard/activities ./ && bash docker/deploy.sh"
+    command: bash -c "mkdir /app && cd /app && git clone git@github.com:LilianBoulard/activities.git ./ && bash docker/deploy.sh"
     ports:
       - 80:80
       - 443:443
