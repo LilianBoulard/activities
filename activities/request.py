@@ -84,6 +84,8 @@ class Request:
             criterion.append(tags_criteria)
 
         # Location criteria
+        if self.district is not None:
+            criterion.append(Event.district == self.district)
 
         events = Event.query(*criterion)
         return events
