@@ -6,6 +6,7 @@ Resources:
     - https://towardsdatascience.com/named-entity-recognition-with-nltk-and-spacy-8c4a7d88e7da
 - Dependency parsing
     - https://universaldependencies.org/u/dep/
+    - https://machinelearningknowledge.ai/learn-dependency-parser-and-dependency-tree-visualizer-in-spacy/
 """
 
 from __future__ import annotations
