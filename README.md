@@ -54,19 +54,32 @@ The chatbot is powered by [NLTK](https://www.nltk.org/) with its machine learnin
 The simplest way to run this project is to use [Docker](https://www.docker.com/),
 and more specifically, [docker-compose](https://docs.docker.com/compose/).
 
-To do that, install both and run
+To do that, install both, clone the repo with
 
 ```commandline
+git clone https://github.com/LilianBoulard/activities
+```
+
+`cd` into it, and run
+
+```commandline
+python generate_passwords.py
 sudo docker-compose up -d
 ```
 
-### 🐍 Directly with Python
+### 🐍 Directly with Python (not recommended)
 
-If you can't use docker, 
-you can run the project by installing [python](https://python.org/download) and the dependencies:
+If you can't use docker, you can run the project by installing 
+[python](https://python.org/download) and the project's dependencies:
 
 ```commandline
 pip install -r requirement.txt
 ```
 
-and then run `./run_server.sh`
+as well as the required NLP pipelines:
+
+```commandline
+bash download_spacy_pipelines.sh
+```
+
+and finally, run `bash run_server.sh`

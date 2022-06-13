@@ -136,3 +136,6 @@ doc/
 
 # Flask secret key
 secret_key
+
+# Docker volumes
+docker/*/

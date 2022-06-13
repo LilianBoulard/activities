@@ -3,33 +3,57 @@
 version: '2.4'
 
 networks:
-  db_bridge:
+  redis_bridge:
+    internal: true
+    driver: bridge
+  sql_bridge:
     internal: true
     driver: bridge
 
 services:
+
+  mariadb:
+    image: ghcr.io/linuxserver/mariadb
+    container_name: sql
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - FILE__MYSQL_ROOT_PASSWORD=./docker/secret_mysql_root_password
+      - FILE__MYSQL_PASSWORD=./docker/secret_mysql_password
+      - MYSQL_DATABASE=activities
+      - MYSQL_USER=activities_user
+      - TZ=Europe/Paris
+    volumes:
+      - ./docker/activities/sql/config:/config
+    restart: unless-stopped
+    networks:
+      - sql_bridge
 
   redis:
     image: redis:latest
     container_name: redis
     environment:
       - TZ=Europe/Paris
+    volumes:
+      - /app/activities/redis/config:/config
     restart: unless-stopped
     networks:
-      - db_bridge
+      - redis_bridge
 
   python:
     image: python:3.9
-    container_name: python
+    container_name: server
     environment:
-      - FLASK_APP=activities.py
+      - FLASK_APP=activities
       - FLASK_RUN_HOST=0.0.0.0
     restart: unless-stopped
-    #command: bash -c "mkdir /app && cd /app && git clone git@github.com:LilianBoulard/activities.git && cd activities/ && pip install -r requirements.txt"
+    command: bash -c "mkdir /app && cd /app && git clone https://github.com:LilianBoulard/activities ./ && bash docker/deploy.sh"
     ports:
       - 80:80
       - 443:443
     depends_on:
       - redis
+      - sql
     networks:
-      - db_bridge
+      - redis_bridge
+      - sql_bridge
