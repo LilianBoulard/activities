@@ -138,4 +138,4 @@ doc/
 secret_key
 
 # Docker volumes
-docker/*/
+docker/activities/

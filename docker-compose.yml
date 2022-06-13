@@ -3,9 +3,11 @@
 version: '2.4'
 
 networks:
+
   redis_bridge:
     internal: true
     driver: bridge
+
   sql_bridge:
     internal: true
     driver: bridge
@@ -35,19 +37,18 @@ services:
     environment:
       - TZ=Europe/Paris
     volumes:
-      - /app/activities/redis/config:/config
+      - ./docker/activities/redis/config:/config
     restart: unless-stopped
     networks:
       - redis_bridge
 
-  python:
-    image: python:3.9
+  server:
+    build: .
     container_name: server
     environment:
       - FLASK_APP=activities
       - FLASK_RUN_HOST=0.0.0.0
     restart: unless-stopped
-    command: bash -c "mkdir /app && cd /app && git clone https://github.com/LilianBoulard/activities.git/ ./ && bash docker/deploy.sh"
     ports:
       - 80:80
       - 443:443
