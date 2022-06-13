@@ -3,10 +3,10 @@ FROM python:3.9 AS build
 RUN apk add --no-cache git
 
 WORKDIR /usr/src/app
-COPY . ./
+COPY . .
 
 # Install Python dependencies
-RUN pip install -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 # Download the required spacy pipelines
 RUN bash download_spacy_pipelines.sh
 
