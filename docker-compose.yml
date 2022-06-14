@@ -46,6 +46,11 @@ services:
     build: .
     container_name: server
     restart: unless-stopped
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+    devices:
+      /dev/dri:/dev/dri
     ports:
       - 8000:8000
     depends_on:
@@ -59,9 +64,13 @@ services:
   server_dev:
     build: .
     container_name: server_dev
+    restart: unless-stopped
+    runtime: nvidia
     environment:
       - FLASK_DEBUG=1
-    restart: unless-stopped
+      - NVIDIA_VISIBLE_DEVICES=all
+    devices:
+      /dev/dri:/dev/dri
     volumes:
       - .:/usr/src/app
     ports:
