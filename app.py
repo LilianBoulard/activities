@@ -14,9 +14,6 @@ from flask import Blueprint, render_template, jsonify, request, session
 app = Blueprint('app', __name__)
 
 
-print('Running !')
-
-
 def create_app():
     root_app = Flask(__name__)
 
