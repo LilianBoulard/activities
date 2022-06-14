@@ -3,6 +3,8 @@
 activities is a search engine for finding activities and events on Paris,
 personalized with the help of a chatbot.  
 
+## 🚀 Usage
+
 An online demo will soon be available !
 
 ## 🔎 About
@@ -10,11 +12,11 @@ An online demo will soon be available !
 First year master's degree Natural Language Processing project.
 
 This project uses
-- 🤖 [NLTK](https://www.nltk.org/) for the chatbot
+- 🤖 [NLTK](https://www.nltk.org/) and [spaCy](https://spacy.io/) for the chatbot
 - 🌶 [Flask](https://flask.palletsprojects.com/en/2.1.x/) for both frontend and backend
 - ⚡ an in-memory [Redis](https://redis.io/) database for lightning fast response times
 - 📚 a [MariaDB](https://mariadb.org/) SQL database to store usage data
-- 🐳 [Docker](https://www.docker.com/) and [docker-compose](https://docs.docker.com/compose/) for deployment
+- 🐳 [Docker](https://www.docker.com/) and 🦄 [Gunicorn](https://gunicorn.org/) for deployment
 
 Most of it is written in Python, with some JavaScript for the front-end, 
 and some HTML / CSS for the web interface's style and structure.
@@ -45,9 +47,9 @@ Development is centered around [Flask](https://flask.palletsprojects.com/en/2.1.
 which is the web application framework we use.  
 A [Redis](https://redis.io/) database is used to store the datasets, 
 and a [MariaDB](https://mariadb.org/) database to record app usage.  
-The chatbot is powered by [NLTK](https://www.nltk.org/) with its machine learning magic ✨
+The chatbot is powered by [NLTK](https://www.nltk.org/) and [spaCy](https://spacy.io/) with their machine learning magic ✨
 
-## 🔌 Usage
+## 🔌 Self-host
 
 ### 🐳 Docker
 

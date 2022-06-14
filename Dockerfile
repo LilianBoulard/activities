@@ -17,5 +17,5 @@ RUN cp docker/config.py activities/
 # Expose the required port(s)
 EXPOSE 8000
 
-# Run the server at runtime
+# Launch the server at runtime
 ENTRYPOINT ["sh", "run_server.sh"]
