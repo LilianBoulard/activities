@@ -50,7 +50,7 @@ services:
     environment:
       - NVIDIA_VISIBLE_DEVICES=all
     devices:
-      /dev/dri:/dev/dri
+      - /dev/dri:/dev/dri
     ports:
       - 8000:8000
     depends_on:
@@ -70,7 +70,7 @@ services:
       - FLASK_DEBUG=1
       - NVIDIA_VISIBLE_DEVICES=all
     devices:
-      /dev/dri:/dev/dri
+      - /dev/dri:/dev/dri
     volumes:
       - .:/usr/src/app
     ports:
