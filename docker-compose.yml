@@ -45,16 +45,31 @@ services:
   server:
     build: .
     container_name: server
-    environment:
-      - FLASK_APP=activities
-      - FLASK_RUN_HOST=0.0.0.0
     restart: unless-stopped
     ports:
-      - 80:80
-      - 443:443
+      - 8000:8000
     depends_on:
       - redis
       - mariadb
     networks:
       - redis_bridge
       - sql_bridge
+      - default
+
+  server_dev:
+    build: .
+    container_name: server_dev
+    environment:
+      - FLASK_DEBUG=1
+    restart: unless-stopped
+    volumes:
+      - .:/usr/src/app
+    ports:
+      - 8000:8001
+    depends_on:
+      - redis
+      - mariadb
+    networks:
+      - redis_bridge
+      - sql_bridge
+      - default

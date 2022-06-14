@@ -1,14 +1,40 @@
 import dateutil
 import pandas as pd
 
-from .nlp import Model
-from .database.sql import db
-from .config import model_cookie_name
-from .database.sql.models import Event
+from flask import Flask
+
+from activities.nlp import Model
+from activities.utils import secret_key
+from activities.database.sql import db
+from activities.config import model_cookie_name
+from activities.database.sql.models import Event
 
 from flask import Blueprint, render_template, jsonify, request, session
 
 app = Blueprint('app', __name__)
+
+
+print('Running !')
+
+
+def create_app():
+    root_app = Flask(__name__)
+
+    # SQL database config
+    root_app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
+    root_app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+    # Session config
+    #app.config['SESSION_FILE_DIR']
+    #app.config['SESSION_FILE_THRESHOLD']
+    #app.config['SESSION_FILE_MODE']
+    root_app.config['SECRET_KEY'] = secret_key()
+
+    db.init_app(root_app)
+
+    root_app.register_blueprint(app)
+
+    return root_app
 
 
 @app.route('/newEvent', methods=['GET'])

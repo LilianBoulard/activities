@@ -1,21 +1,21 @@
-FROM python:3.9 AS build
+FROM python:3.9 AS intermediate
 
-RUN apk add --no-cache git
+RUN apt-get update -y
+RUN apt-get install -y git
 
 WORKDIR /usr/src/app
 COPY . .
 
 # Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --disable-pip-version-check --no-input -r requirements.txt
 # Download the required spacy pipelines
-RUN bash download_spacy_pipelines.sh
+RUN sh download_spacy_pipelines.sh
 
 # Overwrite the default config with the one made for docker
 RUN cp docker/config.py activities/
 
-# Flatten to single layer image
-FROM scratch
-COPY --from=build /app /app
-ENTRYPOINT ["/app"]
+# Expose the required port(s)
+EXPOSE 8000
+
 # Run the server at runtime
-CMD ["bash", "run_server.sh"]
+ENTRYPOINT ["sh", "run_server.sh"]
