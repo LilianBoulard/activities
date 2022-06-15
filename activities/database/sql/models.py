@@ -15,7 +15,6 @@ class Event(UserMixin, db.Model):
     tags = db.Column(db.String(100))
 
     date_start = db.Column(db.Date())
-    date_end = db.Column(db.Date())
 
     latitude = db.Column(db.Float(32))
     longitude = db.Column(db.Float(32))
