@@ -2,7 +2,6 @@
 Implements a request capable of querying the database, given some criterion.
 """
 
-from functools import reduce
 from datetime import date as Date
 from typing import List, Optional
 

@@ -1,6 +1,6 @@
 from typing import Optional, List, Set
 
-from ...database.redis.models import Event
+from ...database.redis import Event
 
 
 def _get_unique_types() -> Set[str]:
