@@ -14,6 +14,7 @@ pytz
 parsedatetime
 python-Levenshtein
 transformers
+transformers[sentencepiece]
 flask-marshmallow
 marshmallow-sqlalchemy
 
