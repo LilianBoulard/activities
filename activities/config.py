@@ -11,9 +11,8 @@ from typing import Dict, Any
 
 project_root: Path = Path(__name__).parent
 
-redis_server_address: str = 'http://localhost'
+redis_server_address: str = 'localhost'
 redis_server_port: int = 6379
-redis_server_dbfilename: Path = project_root / 'dump.rdb'
 # Additional config parameters passed to the Redis server
 # See https://redis-py.readthedocs.io/en/stable/connections.html#redis.Redis
 redis_server_config: Dict[str, Any] = {}
