@@ -17,8 +17,8 @@ if __name__ == "__main__":
     characters = ascii_letters + digits
 
     # Yes, I know, it's pseudo-random.
-    mysql_root_password = md5(choice(characters) * 16).hexdigest()[:16]
-    mysql_password = md5(choice(characters) * 16).hexdigest()[:16]
+    mysql_root_password = md5((choice(characters) * 16).encode('utf8')).hexdigest()[:16]
+    mysql_password = md5((choice(characters) * 16).encode('utf8')).hexdigest()[:16]
 
     if not mysql_root_password_file.is_file():
         with mysql_root_password_file.open('w') as fl:

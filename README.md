@@ -32,7 +32,7 @@ and some HTML / CSS for the web interface's style and structure.
 ## 🤔 How does it work ?
 
 Datasets are pulled from [ParisOpenData](https://opendata.paris.fr/pages/home/)
-and are aggregated in a normalized manner. They are then stored in a read-only
+and aggregated in a normalized manner. They are then stored in a read-only
 in-memory [Redis](https://redis.io/) database, which has the advantage of 
 being both lightweight on the system, and extremely fast.
 
@@ -65,7 +65,7 @@ git clone https://github.com/LilianBoulard/activities
 `cd` into it, and run
 
 ```commandline
-python generate_passwords.py
+python docker/generate_passwords.py
 sudo docker-compose up -d
 ```
 
