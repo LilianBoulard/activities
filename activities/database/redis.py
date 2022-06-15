@@ -21,7 +21,7 @@ db = get_redis_connection(
 )
 
 
-Migrator(db).run()
+Migrator().run()
 
 
 class Event(HashModel):
