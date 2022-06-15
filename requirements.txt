@@ -12,6 +12,7 @@ spacy
 pytz
 parsedatetime
 python-Levenshtein
+transformers
 
 flask_sqlalchemy
 flask_login
