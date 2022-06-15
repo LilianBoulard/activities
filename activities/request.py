@@ -7,7 +7,8 @@ from datetime import date as Date
 from typing import List, Optional
 
 from .utils import encode_json, decode_json
-from .database.sql.models import Event
+from .database.sql import Event
+from sqlalchemy import and_, or_
 
 
 class Request:
@@ -57,19 +58,17 @@ class Request:
 
         # Price criteria
         if self.price_lower_bound is not None and self.price_upper_bound is not None:
-            criterion.append(
-                self.price_lower_bound <= Event.price_start <= self.price_upper_bound
-                or
-                self.price_lower_bound <= Event.price_end <= self.price_upper_bound
-            )
+            criterion.append(or_(
+                and_(self.price_lower_bound <= Event.price_start, Event.price_start <= self.price_upper_bound),
+                and_(self.price_lower_bound <= Event.price_end, Event.price_end <= self.price_upper_bound),
+            ))
 
         # Date criteria
         if self.date_lower_bound is not None and self.date_upper_bound is not None:
-            criterion.append(
-                self.date_lower_bound <= Event.date_start <= self.date_upper_bound
-                or
-                self.date_lower_bound <= Event.date_end <= self.date_upper_bound
-            )
+            criterion.append(or_(
+                and_(self.date_lower_bound <= Event.date_start, Event.date_start <= self.date_upper_bound),
+                and_(self.date_lower_bound <= Event.date_end, Event.date_end <= self.date_upper_bound),
+            ))
 
         # Tags criteria
         if self.tags is not None:
@@ -80,8 +79,7 @@ class Request:
             tags_criterion = []
             for tag in self.tags:
                 tags_criterion.append(tag in Event.tags)
-            tags_criteria = reduce(lambda occ, elem: occ and elem, tags_criterion)
-            criterion.append(tags_criteria)
+            criterion.append(and_(tags_criterion))
 
         # Location criteria
         if self.district is not None:
