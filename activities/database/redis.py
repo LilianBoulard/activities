@@ -21,7 +21,7 @@ db = get_redis_connection(
 )
 
 
-Migrator().run()
+Migrator(db).run()
 
 
 class Event(HashModel):
@@ -38,7 +38,7 @@ class Event(HashModel):
     #description: str
     #lead_text: str
     url: HttpUrl
-    tags: str
+    tags: str = Field(index=True)
 
     reservation_required: bool
     reservation_url: str
@@ -51,8 +51,8 @@ class Event(HashModel):
 
     price_type: str
     price_detail: str
-    price_start = float
-    price_end = float
+    price_start: float = Field(index=True)
+    price_end: float = Field(index=True)
 
     contact_url: HttpUrl
     contact_mail: EmailStr
@@ -65,7 +65,7 @@ class Event(HashModel):
     city: str
     zipcode: str
     department: int
-    district: int
+    district: int = Field(index=True)
 
     latitude: float
     longitude: float
