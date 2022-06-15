@@ -3,13 +3,14 @@ import pandas as pd
 
 from flask import Flask
 
-from activities.nlp import Model
+from activities.nlp import Model, NLP
 from activities.utils import secret_key
 from activities.database.sql import db
 from activities.config import model_cookie_name
-from activities.database.sql.models import Event
+from activities.database.sql import Event
 
 from flask import Blueprint, render_template, jsonify, request, session
+
 
 app = Blueprint('app', __name__)
 
@@ -32,6 +33,11 @@ def create_app():
     root_app.register_blueprint(app)
 
     return root_app
+
+
+# Create the NLP model so that it is loaded when the server starts, and not
+# when the first message is received
+_nlp = NLP()
 
 
 @app.route('/newEvent', methods=['GET'])
