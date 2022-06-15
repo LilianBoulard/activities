@@ -1,3 +1,4 @@
+import imp
 import dateutil
 import pandas as pd
 
@@ -10,9 +11,15 @@ from activities.config import model_cookie_name
 from activities.database.sql import Event
 
 from flask import Blueprint, render_template, jsonify, request, session
+from flask_marshmallow import Marshmallow
 
 
 app = Blueprint('app', __name__)
+
+ma = Marshmallow(app)
+class EventSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = Event
 
 
 def create_app():
@@ -46,7 +53,7 @@ def populate_db():
     db.session.query(Event).delete()
     db.session.commit()
     # Add new ones
-    df = pd.read_csv('doc/que-faire-a-paris-.csv', delimiter=';')
+    df = pd.read_csv('que-faire-a-paris.csv', delimiter=';')
     # Only keep important columns
     df = df[['Titre', 'Coordonnées géographiques', 'Mots clés', 'Date de début']]
     # Remove lines with missing values
@@ -85,6 +92,13 @@ def index():
 @app.route('/nltkresponse', methods=['POST'])
 def nltkresponse():
     user_message: str = request.get_json()
+    events=db.session.query(Event).filter(Event.tags == user_message)
+    output=""
+    if events:
+        event_schema = EventSchema(many=True)
+        output = event_schema.dump(events)
+
+    """
     # Get model information from the session.
     # If there is no stored information, creates a new model.
     model_info = session.get(model_cookie_name, '')
@@ -103,4 +117,5 @@ def nltkresponse():
         'message': f"J'ai bien noté {user_message!r}",
         'events': events
     }
-    return jsonify(results)
+    return jsonify(results)"""
+    return jsonify({'events' : output})
