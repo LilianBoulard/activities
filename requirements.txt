@@ -17,6 +17,9 @@ transformers
 transformers[sentencepiece]
 flask-marshmallow
 marshmallow-sqlalchemy
+torch
+torchvision
+torchaudio
 
 flask_sqlalchemy
 flask_login
