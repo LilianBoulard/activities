@@ -11,13 +11,11 @@ Resources:
 
 from __future__ import annotations
 
-from typing import List
-from spacy.tokens import Doc
-
-from .languages import FRNLP
+from ._nlp import NLP
 from ..request import Request
 from .parsers.date import DateParser
-from ..utils import encode_json, decode_json, zip_to_dict
+from .parsers.type import TypeParser
+from ..utils import encode_json, decode_json
 
 
 class Model:
@@ -32,27 +30,11 @@ class Model:
     This request, which is used to create the query to the database, can be
     acquired with the attribute `request`.
 
-    Parameters
-    ----------
-
-    language: str ; default "fr"
-        Any key from "supported_languages".
-        Defines in which language the parser will work.
-
     """
 
-    supported_languages = {
-        "fr": FRNLP,
-    }
-
-    def __init__(self, language: str = "fr"):
+    def __init__(self):
         # Load tokenizer, tagger, parser and NER
-        pipeline = self.supported_languages.get(language, None)
-        if pipeline is None:
-            raise ValueError(f'Unsupported language: {language}')
-
-        self.language = language
-        self._nlp = pipeline()
+        self._nlp = NLP()
         # Create a new request
         self.request = Request()
 
@@ -65,33 +47,32 @@ class Model:
         understood_something = False
 
         # Process the user input with the NLP pipeline
-        document: Doc = self._nlp(user_input)
+        document = self._nlp(user_input)
 
-        # Convert the text and labels to a dictionary mapping each label to a
-        # list of texts.
-        labels = zip_to_dict([(ent.text, ent.label_) for ent in document.ents])
+        for entity in document:
 
-        # Process the date
-        if 'DATE' in labels:
-            date_parser = DateParser(language=self.language)
-            for date_input in labels['DATE']:
-                date_range = date_parser(date_input)
+            # Process the date
+            if entity['entity_group'] == 'DATE':
+                date_parser = DateParser()
+                date_range = date_parser(entity['word'])
                 if date_range is not None:
                     date_start, date_end = date_range  # Unpack
                     self.request.date_lower_bound = date_start
                     self.request.date_upper_bound = date_end
                     understood_something = True
-                    print(date_start, date_end, understood_something)
+                    #print(date_start, date_end, understood_something)
+                continue
 
-        # Process the type
-        unique_types: List[str] = []
-        # TODO
+            # Process the type
+            if entity['entity_group'] == 'DATE':
+                #type_parser = TypeParser()
+                #extracted_type = type_parser(entity['word'])
+                continue
 
-        # Process the price
-        if 'MONEY' in labels:
-            for money_input in labels['MONEY']:
+            # Process the price
+            if entity['entity_group'] == 'MONEY':
                 # TODO
-                pass
+                continue
 
         return understood_something
 
@@ -104,7 +85,7 @@ class Model:
         """
         info_dec = decode_json(info)
         # Instantiate with language
-        model = cls(info_dec.pop('language'))
+        model = cls()
         # Set the request
         model.request = Request.from_json(info_dec.pop('request'))
         return model
@@ -115,6 +96,5 @@ class Model:
         in a user cookie.
         """
         return encode_json({
-            'language': self.language,
             'request': self.request.to_json(),
         })
