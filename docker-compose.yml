@@ -42,6 +42,7 @@ services:
       - TZ=Europe/Paris
     volumes:
       - ./docker/activities/redis/config:/config
+      - ./docker/activities/redis/data:/data
     restart: unless-stopped
     networks:
       - redis_bridge
