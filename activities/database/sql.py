@@ -1,6 +1,10 @@
 from flask_login import UserMixin
-from .database import db
-from ...utils import encode_json
+from flask_sqlalchemy import SQLAlchemy
+
+from ..utils import encode_json
+
+
+db = SQLAlchemy()
 
 
 class Event(UserMixin, db.Model):

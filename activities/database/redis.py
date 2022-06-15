@@ -1,7 +1,27 @@
+"""
+Implements a Redis database to interact with a server.
+
+Redis resources:
+- https://realpython.com/python-redis/
+- https://redis.io/commands/
+"""
+
 import datetime
 
-from redis_om import HashModel
 from pydantic import EmailStr, HttpUrl
+from redis_om import HashModel, Field, Migrator, get_redis_connection
+
+from ..config import redis_server_address, redis_server_port, redis_server_config
+
+
+db = get_redis_connection(
+    host=redis_server_address,
+    port=redis_server_port,
+    **redis_server_config,
+)
+
+
+Migrator().run()
 
 
 class Event(HashModel):
@@ -10,7 +30,9 @@ class Event(HashModel):
     Each field must have the same name as in the table.
     """
 
-    # TODO: uncomment attributes and add import them in `pull_data.py`.
+    # TODO: uncomment attributes and add them in `pull_data.py`.
+
+    identifier: int = Field(index=True, primary_key=True)
 
     title: str
     #description: str
@@ -51,3 +73,6 @@ class Event(HashModel):
     blind: bool
     deaf: bool
     pmr: bool  # Personne à Mobilité Réduite
+
+    class Meta:
+        database = db
