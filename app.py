@@ -1,16 +1,14 @@
 import dateutil
 import pandas as pd
 
-from flask import Flask
-
 from activities.nlp import Model, NLP
 from activities.utils import secret_key
 from activities.database.sql import db
 from activities.config import model_cookie_name
 from activities.database.sql import Event
 
-from flask import Blueprint, render_template, jsonify, request, session
 from flask_marshmallow import Marshmallow
+from flask import Flask, Blueprint, render_template, jsonify, request, session
 
 
 app = Blueprint('app', __name__)
