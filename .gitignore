@@ -139,3 +139,6 @@ secret_key
 
 # Docker volumes
 docker/activities/
+
+# CSVs
+*.csv
