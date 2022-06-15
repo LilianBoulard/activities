@@ -1,10 +1,11 @@
 import pandas as pd
 import parsedatetime as pdt
 
-from pytz import timezone
 from datetime import datetime, timedelta
 from Levenshtein import distance
 from typing import Tuple, Optional, Dict, Callable
+
+from ...config import timezone
 
 
 def minmax(func):
@@ -148,7 +149,6 @@ class DateParser:
     """
 
     def __init__(self):
-        self._tz = timezone('Europe/Paris')
         self.range_parser = DateRangeParser(parent_parser=self)
         self.cal = pdt.Calendar(pdt.Constants(localeID="fr_FR"))
 
@@ -159,7 +159,7 @@ class DateParser:
         The `datetime` objects represent exact times, and not ranges.
         This means that
         """
-        date_parts = self.cal.parseDT(date_input, tzinfo=self._tz)
+        date_parts = self.cal.parseDT(date_input, tzinfo=timezone)
 
         *dates, parsed_type = date_parts
         if parsed_type == 0:

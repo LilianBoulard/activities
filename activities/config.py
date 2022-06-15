@@ -7,6 +7,7 @@ Refer to the file `README.md` in the root directory for more information.
 
 from pathlib import Path
 from typing import Dict, Any
+from pytz import timezone as _timezone
 
 
 project_root: Path = Path(__name__).parent
@@ -19,3 +20,5 @@ redis_server_config: Dict[str, Any] = {}
 
 model_cookie_name: str = 'model_info'
 secret_key_file: Path = project_root / 'secret_key'
+
+timezone = _timezone('Europe/Paris')
