@@ -15,6 +15,7 @@ parsedatetime
 python-Levenshtein
 transformers
 flask-marshmallow
+marshmallow-sqlalchemy
 
 flask_sqlalchemy
 flask_login
