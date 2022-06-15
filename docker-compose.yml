@@ -12,6 +12,10 @@ networks:
     internal: true
     driver: bridge
 
+  # Remove if you don't use a reverse-proxy on docker
+  reverse_proxy_net:
+    external: true
+
 services:
 
   mariadb:
@@ -60,6 +64,8 @@ services:
       - redis_bridge
       - sql_bridge
       - default
+      # Remove if you don't use a reverse-proxy on docker
+      - reverse_proxy_net
 
   server_dev:
     build: .
