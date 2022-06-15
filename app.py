@@ -1,4 +1,3 @@
-import imp
 import dateutil
 import pandas as pd
 
@@ -17,6 +16,8 @@ from flask_marshmallow import Marshmallow
 app = Blueprint('app', __name__)
 
 ma = Marshmallow(app)
+
+
 class EventSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Event
@@ -92,13 +93,6 @@ def index():
 @app.route('/nltkresponse', methods=['POST'])
 def nltkresponse():
     user_message: str = request.get_json()
-    events=db.session.query(Event).filter(Event.tags == user_message)
-    output=""
-    if events:
-        event_schema = EventSchema(many=True)
-        output = event_schema.dump(events)
-
-    """
     # Get model information from the session.
     # If there is no stored information, creates a new model.
     model_info = session.get(model_cookie_name, '')
@@ -107,15 +101,15 @@ def nltkresponse():
     if model.interpret_user_input(user_message):
         # The model has understood the message, and has updated the request.
         query_result = model.request.query()
-        events = [event.to_json() for event in query_result]
+        event_objects = [event.to_json() for event in query_result]
+        event_schema = EventSchema(many=True)
+        events = event_schema.dump(event_objects)
     else:
         # In this case, the list of events on the web page should not change.
         # We pass None (json "null") to denote that.
         events = None
 
-    results = {
+    return jsonify({
         'message': f"J'ai bien noté {user_message!r}",
         'events': events
-    }
-    return jsonify(results)"""
-    return jsonify({'events' : output})
+    })
