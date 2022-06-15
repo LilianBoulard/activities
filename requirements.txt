@@ -4,6 +4,7 @@ flask
 redis
 redis-om
 pydantic
+pydantic[email]
 nltk
 requests
 pandas
