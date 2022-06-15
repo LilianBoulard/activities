@@ -12,6 +12,7 @@ from dateutil.parser import isoparse
 from pydantic import ValidationError
 from typing import List, Optional, Generator, Iterable
 
+from activities.config import timezone
 from activities.database.redis import db, Event
 from activities.utils import decode_json, price_regex
 
@@ -205,6 +206,13 @@ def que_faire_a_paris() -> None:
     Source: https://opendata.paris.fr/explore/dataset/que-faire-a-paris-/
     """
 
+    last_save = datetime.fromtimestamp(db.lastsave())
+    now = datetime.now(timezone)
+    last_update = datetime(year=now.year, month=now.month, day=now.day, hour=7)
+    if last_save > last_update:
+        print('Data was already saved earlier this day, skipping pull')
+        return
+
     # Get all the event ids we got in the database
     db_record_ids = {}
     for key_batch in batcher(db.scan_iter('user:*'), 500):
@@ -224,6 +232,8 @@ def que_faire_a_paris() -> None:
             continue
         event = get_event_from_row(record['fields'])
         event.save()
+
+    db.save()
 
 
 if __name__ == "__main__":
