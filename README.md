@@ -68,20 +68,3 @@ git clone https://github.com/LilianBoulard/activities
 python docker/generate_passwords.py
 sudo docker-compose up -d
 ```
-
-### 🐍 Directly with Python (not recommended)
-
-If you can't use docker, you can run the project by installing 
-[python](https://python.org/download) and the project's dependencies:
-
-```commandline
-pip install -r requirement.txt
-```
-
-as well as the required NLP pipelines:
-
-```commandline
-bash download_spacy_pipelines.sh
-```
-
-and finally, run `bash run_server.sh`
