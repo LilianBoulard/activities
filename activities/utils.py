@@ -49,7 +49,3 @@ def zip_to_dict(items: List[Tuple[str, str]]) -> Dict[str, List[str]]:
     for key, value in items:
         final[key].append(value)
     return dict(final)
-
-
-_euro = "€|eur|EUR|euros"
-price_regex = f'(\\d+(\\.|,)\\d+|\\d+)( ?)(a|à|-)( ?)(\\d+(\\.|,)\\d+|\\d+)( ?)|(\\d+(\\.|,)\\d+)( ?)({_euro})|(\\d+)( ?)({_euro})|({_euro})( ?)(\\d+)'
