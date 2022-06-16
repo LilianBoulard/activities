@@ -2,12 +2,11 @@
 Implements a request capable of querying the database, given some criterion.
 """
 
+from functools import reduce
 from datetime import date as Date
 from typing import List, Optional
 
-from .utils import encode_json, decode_json
-from .database.sql import Event
-from sqlalchemy import and_, or_
+from .database.redis import Event
 
 
 class Request:
@@ -57,17 +56,19 @@ class Request:
 
         # Price criteria
         if self.price_lower_bound is not None and self.price_upper_bound is not None:
-            criterion.append(or_(
-                and_(self.price_lower_bound <= Event.price_start, Event.price_start <= self.price_upper_bound),
-                and_(self.price_lower_bound <= Event.price_end, Event.price_end <= self.price_upper_bound),
-            ))
+            criterion.append(
+                (self.price_lower_bound <= Event.price_start) & (Event.price_start <= self.price_upper_bound)
+                |
+                (self.price_lower_bound <= Event.price_end) & (Event.price_end <= self.price_upper_bound)
+            )
 
         # Date criteria
         if self.date_lower_bound is not None and self.date_upper_bound is not None:
-            criterion.append(or_(
-                and_(self.date_lower_bound <= Event.date_start, Event.date_start <= self.date_upper_bound),
-                and_(self.date_lower_bound <= Event.date_end, Event.date_end <= self.date_upper_bound),
-            ))
+            criterion.append(
+                (self.date_lower_bound <= Event.date_start) & (Event.date_start <= self.date_upper_bound)
+                |
+                (self.date_lower_bound <= Event.date_end) & (Event.date_end <= self.date_upper_bound)
+            )
 
         # Tags criteria
         if self.tags is not None:
@@ -78,22 +79,45 @@ class Request:
             tags_criterion = []
             for tag in self.tags:
                 tags_criterion.append(tag in Event.tags)
-            criterion.append(and_(tags_criterion))
+            tags_criteria = reduce(lambda occ, elem: occ & elem, tags_criterion)
+            criterion.append(tags_criteria)
 
         # Location criteria
         if self.district is not None:
             criterion.append(Event.district == self.district)
 
-        events = Event.query(*criterion)
+        print(f'Got {len(criterion)} criterion: {criterion}')
+        criterion_and = reduce(lambda occ, elem: occ & elem, criterion)
+        print(f'Final criterion: {criterion_and}')
+        events = Event.find(criterion_and)
         return events
 
     @classmethod
-    def from_json(cls, info: str):
+    def from_json(cls, info: dict):
         req = cls()
-        # Set all values in info programmatically
-        for key, value in decode_json(info):
+        # Set all values programmatically
+        for key, value in info:
             req.__setattr__(key, value)
         return req
 
-    def to_json(self):
-        return encode_json(vars(self))
+    def to_json(self) -> dict:
+        info = dict(
+            price_lower_bound=self.price_lower_bound,
+            price_upper_bound=self.price_upper_bound,
+
+            date_lower_bound=self.date_lower_bound,
+            date_upper_bound=self.date_upper_bound,
+
+            tags=self.tags,
+
+            district=self.district,
+            latitude=self.latitude,
+            longitude=self.longitude,
+        )
+        # Filter out nones
+        info = {
+            key: value
+            for key, value in info.items()
+            if value is not None
+        }
+        return info
