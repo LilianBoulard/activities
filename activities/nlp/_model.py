@@ -13,15 +13,14 @@ from __future__ import annotations
 
 from ._nlp import NLP
 from ..request import Request
-from .parsers.date import DateParser
-from .parsers.type import TypeParser
-from ..utils import encode_json, decode_json
+from ..utils import encode_json
+from .parsers import DateParser, TypeParser, PriceParser
 
 
 class Model:
 
     """
-    This class is instantiated every time a user reloads the page.
+    This class is instantiated (reset) every time a user reloads the page.
     It will be kept along the conversation.
 
     Each time the user sends a message, it is passed to the method
@@ -31,6 +30,11 @@ class Model:
     acquired with the attribute `request`.
 
     """
+
+    # Instantiate stateless parsers
+    date_parser = DateParser()
+    type_parser = TypeParser()
+    price_parser = PriceParser()
 
     def __init__(self):
         # Load tokenizer, tagger, parser and NER
@@ -53,41 +57,43 @@ class Model:
 
             # Process the date
             if entity['entity_group'] == 'DATE':
-                date_parser = DateParser()
-                date_range = date_parser(entity['word'])
+                date_range = self.date_parser(entity['word'])
                 if date_range is not None:
                     date_start, date_end = date_range  # Unpack
                     self.request.date_lower_bound = date_start
                     self.request.date_upper_bound = date_end
+                    print(f'Found {date_start} to {date_end} for {entity["word"]}')
                     understood_something = True
-                    #print(date_start, date_end, understood_something)
                 continue
 
             # Process the type
-            if entity['entity_group'] == 'DATE':
+            if entity['entity_group'] == 'TYPE':
                 #type_parser = TypeParser()
                 #extracted_type = type_parser(entity['word'])
                 continue
 
-            # Process the price
-            if entity['entity_group'] == 'MONEY':
-                # TODO
-                continue
+        # Process the price
+        price_found = self.price_parser(user_input)
+        if price_found is not None:
+            price_start, price_end = price_found  # Unpack
+            self.request.price_lower_bound = price_start
+            self.request.price_upper_bound = price_end
+            print(f'Found price range: {price_start} to {price_end}')
+            understood_something = True
 
         return understood_something
 
     @classmethod
-    def from_json(cls, info: str) -> Model:
+    def from_json(cls, info: dict) -> Model:
         """
         Takes information about a model, as a JSON-encoded string,
         and construct a model from this data.
         The string can be empty, in which case a new model is created.
         """
-        info_dec = decode_json(info)
         # Instantiate with language
         model = cls()
         # Set the request
-        model.request = Request.from_json(info_dec.pop('request'))
+        model.request = Request.from_json(info.pop('request'))
         return model
 
     def to_json(self) -> str:
