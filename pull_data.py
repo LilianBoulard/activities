@@ -2,7 +2,6 @@
 Gets data from opendata.paris.fr and stores them in the Redis database.
 """
 
-import re
 import requests
 
 from functools import reduce
@@ -13,8 +12,9 @@ from pydantic import ValidationError
 from typing import List, Optional, Generator, Iterable
 
 from activities.config import timezone
+from activities.utils import decode_json
+from activities.nlp.parsers import PriceParser
 from activities.database.redis import db, Event
-from activities.utils import decode_json, price_regex
 
 
 def batcher(iterable: Iterable, n: int):
@@ -32,6 +32,7 @@ headers = {
     "Connection": "keep-alive",
     "Upgrade-Insecure-Requests": "1"
 }
+price_parser = PriceParser()
 
 
 def get_event_from_row(row: dict) -> Optional[Event]:
@@ -53,9 +54,9 @@ def get_event_from_row(row: dict) -> Optional[Event]:
     if not reservation_required_val:
         return
     reservation_map = {
-        'non': False,
-        'conseillée': True,
-        'obligatoire': True,
+        'non': 0,
+        'conseillée': 1,
+        'obligatoire': 1,
     }
     if reservation_required_val not in reservation_map.keys():
         print(f'Unknown access type: {reservation_required_val!r}')
@@ -79,11 +80,17 @@ def get_event_from_row(row: dict) -> Optional[Event]:
     if not occurrences_val:
         return  # FIXME: Mandatory ?
     occurrences = occurrences_val.split(';')
-    occurrences_start_end = [
-        (start, end)
-        for occ in occurrences
-        for start, end in occ.split('_')
-    ]
+    occurrences_start_end = []
+    for occ in occurrences:
+        occ_parts = occ.split('_')
+        if len(occ_parts) == 1:
+            occurrences_start_end.append((occ, occ))
+        elif len(occ_parts) == 2:
+            start, end = occ_parts
+            occurrences_start_end.append((start, end))
+        else:
+            print(f'Too much dates: {occ}')
+            continue
     occurrences_start: List[datetime] = [
         isoparse(occ[0]) for occ in occurrences_start_end
     ]
@@ -96,34 +103,18 @@ def get_event_from_row(row: dict) -> Optional[Event]:
         return
     price_detail = row.get('price_detail', None)
     if not price_detail:
-        # TODO: Edge cases:
-        #  - "Sur réservation"
         return
     if price_type == 'payant':
-        found_prices = re.findall(price_regex, price_detail)
-
-        # FIXME: Hackish
-        all_prices = []
-        for price_matches in found_prices:
-            # Remove duplicates
-            matches = list(set(price_matches))
-            # Remove empty values
-            matches.remove('')
-            # Keep only the first integer value
-            for match in matches:
-                try:
-                    price = int(match)
-                    break
-                except ValueError:
-                    continue
-            else:
-                # If we did not find any integer value,
-                # print a warning and skip this price
-                print(f'Match did not contain any price: {matches}')
-                continue
-            all_prices.append(price)
+        price_found = price_parser(price_detail)
+        if price_found is None:
+            # We did not find any price
+            # TODO: Edge cases:
+            #  - "Sur réservation"
+            return
+        else:
+            price_start, price_end = price_found  # Unpack
     else:
-        all_prices = [0]
+        price_start, price_end = 0, 0
 
     # Process geographic location
     place = row.get('address_name', None)
@@ -138,6 +129,7 @@ def get_event_from_row(row: dict) -> Optional[Event]:
     zipcode = row.get("address_zipcode", None)
     if not zipcode:
         return
+    zipcode = zipcode[:5]
     department = int(zipcode[:2])
     district = zipcode[-2:] if zipcode.startswith('75') else 0
 
@@ -145,46 +137,51 @@ def get_event_from_row(row: dict) -> Optional[Event]:
     if not lat or not lon:
         return
 
+    values = dict(
+        pk=identifier,
+
+        title=title,
+        url=row.get('url', ''),
+        tags=tags,
+
+        reservation_required=reservation_required,
+        reservation_url=reservation_url,
+        reservation_url_description=reservation_url_description,
+
+        date_start=date_start,
+        date_end=date_end,
+
+        price_type=price_type,
+        price_detail=price_detail,
+        price_start=price_start,
+        price_end=price_end,
+
+        contact_url=row.get('contact_url', None),
+        contact_mail=row.get('contact_mail', None),
+        contact_phone=row.get('contact_phone', None),
+        contact_facebook=row.get('contact_facebook', None),
+        contact_twitter=row.get('contact_twitter', None),
+
+        place=place,
+        street=street,
+        city=city,
+        zipcode=zipcode,
+        department=department,
+        district=district,
+
+        latitude=lat,
+        longitude=lon,
+
+        blind=row.get('blind', 0),
+        deaf=row.get('deaf', 0),
+        pmr=row.get('pmr', 0),
+    )
     try:
-        event = Event(
-            identifier=identifier,
-            title=title,
-            tags=tags,
-
-            reservation_required=reservation_required,
-            reservation_url=reservation_url,
-            reservation_url_description=reservation_url_description,
-
-            date_start=date_start,
-            date_end=date_end,
-
-            price_type=price_type,
-            price_detail=price_detail,
-            price_start=min(all_prices),
-            price_end=max(all_prices),
-
-            contact_url=row.get('contact_url', ''),
-            contact_mail=row.get('contact_mail', ''),
-            contact_phone=row.get('contact_phone', ''),
-            contact_facebook=row.get('contact_facebook', ''),
-            contact_twitter=row.get('contact_twitter', ''),
-
-            place=place,
-            street=street,
-            city=city,
-            zipcode=zipcode,
-            department=department,
-            district=district,
-
-            latitude=lat,
-            longiture=lon,
-
-            blind=bool(row.get('blind', 0)),
-            deaf=bool(row.get('deaf', 0)),
-            pmr=bool(row.get('pmr', 0)),
-        )
-    except ValidationError:
-        print('Invalid event')
+        event = Event(**values)
+    except ValidationError as e:
+        print(f'Invalid event: {e}')
+        print(values)
+        exit()
     else:
         return event
 
@@ -206,17 +203,19 @@ def que_faire_a_paris() -> None:
     Source: https://opendata.paris.fr/explore/dataset/que-faire-a-paris-/
     """
 
-    last_save = datetime.fromtimestamp(db.lastsave())
+    last_save = db.lastsave()
     now = datetime.now(timezone)
     last_update = datetime(year=now.year, month=now.month, day=now.day, hour=7)
     if last_save > last_update:
-        print('Data was already saved earlier this day, skipping pull')
+        print('Data was already modified earlier this day, skipping pull')
         return
 
     # Get all the event ids we got in the database
-    db_record_ids = {}
-    for key_batch in batcher(db.scan_iter('user:*'), 500):
-        db_record_ids.update(key_batch)
+    db_record_ids = set()
+    for key in db.scan_iter('*'):
+        _, prefix, key = key.split(':')
+        db_record_ids.update({key})
+    print(f'{len(db_record_ids)} events currently in the database.')
 
     # Searches for the 10k first events, with the timezone set on Paris.
     endpoint = ("https://opendata.paris.fr/api/records/1.0/search/"
@@ -227,13 +226,17 @@ def que_faire_a_paris() -> None:
     with requests.get(endpoint, headers=headers) as r:
         data = decode_json(r.text)
 
+    inserted = 0
     for record in data['records']:
-        if int(record['fields']['id']) in db_record_ids:
+        if record['fields']['id'] in db_record_ids:
             continue
         event = get_event_from_row(record['fields'])
-        event.save()
+        if event is not None:
+            event.save()
+            inserted += 1
 
     db.save()
+    print(f'{inserted} events inserted in the database')
 
 
 if __name__ == "__main__":

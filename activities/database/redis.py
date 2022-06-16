@@ -8,6 +8,7 @@ Redis resources:
 
 import datetime
 
+from typing import Optional
 from pydantic import EmailStr, HttpUrl
 from redis_om import HashModel, Field, Migrator, get_redis_connection
 
@@ -17,8 +18,10 @@ from ..config import redis_server_address, redis_server_port, redis_server_confi
 db = get_redis_connection(
     host=redis_server_address,
     port=redis_server_port,
+    db=0,
     **redis_server_config,
 )
+db.ping()
 
 
 Migrator().run()
@@ -32,33 +35,31 @@ class Event(HashModel):
 
     # TODO: uncomment attributes and add them in `pull_data.py`.
 
-    identifier: int = Field(index=True, primary_key=True)
-
     title: str
     #description: str
     #lead_text: str
     url: HttpUrl
     tags: str = Field(index=True)
 
-    reservation_required: bool
+    reservation_required: int  # 1 = yes ; 0 = no. See below for why no bool
     reservation_url: str
     reservation_url_description: str
 
-    date_start: datetime.datetime
-    date_end: datetime.datetime
+    date_start: datetime.datetime = Field(sortable=True)
+    date_end: datetime.datetime = Field(sortable=True)
     #occurrences: str
     #date_description: str
 
     price_type: str
     price_detail: str
-    price_start: float = Field(index=True)
-    price_end: float = Field(index=True)
+    price_start: float = Field(sortable=True)
+    price_end: float = Field(sortable=True)
 
-    contact_url: HttpUrl
-    contact_mail: EmailStr
-    contact_phone: str
-    contact_facebook: HttpUrl
-    contact_twitter: HttpUrl
+    contact_url: Optional[HttpUrl]
+    contact_mail: Optional[EmailStr]
+    contact_phone: Optional[str]
+    contact_facebook: Optional[HttpUrl]
+    contact_twitter: Optional[HttpUrl]
 
     place: str
     street: str
@@ -70,9 +71,14 @@ class Event(HashModel):
     latitude: float
     longitude: float
 
-    blind: bool
-    deaf: bool
-    pmr: bool  # Personne à Mobilité Réduite
+    # Following fields should be booleans, but it is not yet supported.
+    # See https://github.com/redis/redis-om-python/issues/193
+    blind: int
+    deaf: int
+    pmr: int  # Personne à Mobilité Réduite
 
     class Meta:
         database = db
+
+    def to_json(self) -> dict:
+        return self.dict()
