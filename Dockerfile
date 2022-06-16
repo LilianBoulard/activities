@@ -9,7 +9,7 @@ COPY . .
 # Install Python dependencies
 RUN pip install --disable-pip-version-check --no-input -r requirements.txt
 # Download the required spacy pipelines
-#RUN sh download_spacy_pipelines.sh
+RUN sh download_pretrained_models.sh
 
 # Overwrite the default config with the one made for docker
 RUN cp docker/config.py activities/
