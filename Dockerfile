@@ -1,7 +1,7 @@
-FROM python:3.9 AS intermediate
+FROM python:3.10 AS intermediate
 
 RUN apt-get update -y
-RUN apt-get install -y git
+RUN apt-get install -y git git-lfs
 
 WORKDIR /usr/src/app
 COPY . .
