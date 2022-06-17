@@ -6,6 +6,7 @@ Redis resources:
 - https://redis.io/commands/
 """
 
+import json
 import datetime
 
 from typing import Optional
@@ -45,15 +46,15 @@ class Event(HashModel):
     reservation_url: str
     reservation_url_description: str
 
-    date_start: datetime.datetime = Field(sortable=True)
-    date_end: datetime.datetime = Field(sortable=True)
+    date_start: datetime.datetime = Field(index=True, sortable=True)
+    date_end: datetime.datetime = Field(index=True, sortable=True)
     #occurrences: str
     #date_description: str
 
     price_type: str
     price_detail: str
-    price_start: float = Field(sortable=True)
-    price_end: float = Field(sortable=True)
+    price_start: float = Field(index=True, sortable=True)
+    price_end: float = Field(index=True, sortable=True)
 
     contact_url: Optional[HttpUrl]
     contact_mail: Optional[EmailStr]
@@ -68,8 +69,8 @@ class Event(HashModel):
     department: int
     district: int = Field(index=True)
 
-    latitude: float
-    longitude: float
+    latitude: float = Field(index=True, sortable=True)
+    longitude: float = Field(index=True, sortable=True)
 
     # Following fields should be booleans, but it is not yet supported.
     # See https://github.com/redis/redis-om-python/issues/193
@@ -81,4 +82,4 @@ class Event(HashModel):
         database = db
 
     def to_json(self) -> dict:
-        return self.dict()
+        return json.loads(self.json())
