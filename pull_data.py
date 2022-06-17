@@ -6,22 +6,14 @@ import requests
 
 from functools import reduce
 from datetime import datetime
-from itertools import zip_longest
 from dateutil.parser import isoparse
 from pydantic import ValidationError
-from typing import List, Optional, Generator, Iterable
+from typing import List, Optional, Generator
 
 from activities.config import timezone
 from activities.utils import decode_json
 from activities.nlp.parsers import PriceParser
 from activities.database.redis import db, Event
-
-
-def batcher(iterable: Iterable, n: int):
-    # Iterate a list in batches of size n.
-    # From https://stackoverflow.com/a/34166690/9084059
-    args = [iter(iterable)] * n
-    return zip_longest(*args)
 
 
 headers = {
