@@ -5,6 +5,7 @@ Implements a request capable of querying the database, given some criterion.
 from functools import reduce
 from datetime import date as Date
 from typing import List, Optional
+from pydantic import ValidationError
 
 from .database.redis import Event
 
@@ -86,10 +87,20 @@ class Request:
         if self.district is not None:
             criterion.append(Event.district == self.district)
 
-        print(f'Got {len(criterion)} criterion: {criterion}')
-        criterion_and = reduce(lambda occ, elem: occ & elem, criterion)
-        print(f'Final criterion: {criterion_and}')
-        events = Event.find(criterion_and)
+        if len(criterion) > 0:
+            criterion_and = reduce(lambda acc, elem: acc & elem, criterion)
+            events = Event.find(criterion_and)
+        else:
+            events = []
+            for pk in Event.all_pks():
+                # FIXME: temporary fix waiting on
+                # https://github.com/redis/redis-om-python/issues/254
+                try:
+                    event = Event.get(pk)
+                except ValidationError:
+                    print(f'Error while loading event {pk}')
+                else:
+                    events.append(event)
         return events
 
     @classmethod
