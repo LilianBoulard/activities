@@ -1,6 +1,5 @@
 function create_bot_message(message) {
     const conversation = document.getElementById("conversation");
-    const event_list=document.getElementById("event_list");
 
     conversation.innerHTML += (
         "<li class='d-flex justify-content-between mb-4'>" +
@@ -18,39 +17,56 @@ function create_bot_message(message) {
 }
 
 
-function update_events(events) {
+function display_all_events(events) {
+    const event_list = document.getElementById("event_list");
     // TODO: limit number of events shown
     // TODO (even later): Make infinite scroll
-    console.log("events=", events);
     event_list.innerHTML = "";
     for (const event of events) {
         event_list.innerHTML += (
-            "<li class='list-group-item'>" +
+            "<li class='list-group-item' id='" + event.pk + "'>" +
                 "<div class='card row-hover pos-relative py-3 px-3 mb-3 border-warning border-top-0 border-right-0 border-bottom-0 rounded-0'>" +
                     "<div class='row align-items-center'>" +
-                        "<div class='col-md-8 mb-3 mb-sm-0'>" +
-                            "<h5> <a href='#' class='text-primary'> " + event.title + "</a> </h5>" +
-                            "<p class='text-sm'> <i class='fa fa-map-marker' aria-hidden='true'></i> " + event.place + "</p>" +
-                            "<div class='text-sm op-5'></div>" +
-                        "</div>" +
-                        "<div class='col-md-4 op-7'>" +
-                            "<div class='row text-center op-7'>" +
-                                "<div class='col px-1'> <i class='ion-connection-bars icon-1x'></i> <span class='d-block text-sm'>141 Votes</span> </div>" +
-                                "<div class='col px-1'> <i class='ion-ios-chatboxes-outline icon-1x'></i> <span class='d-block text-sm'>122 Replys</span> </div>" +
-                                "<div class='col px-1'> <i class='ion-ios-eye-outline icon-1x'></i> <span class='d-block text-sm'>290 Views</span> </div>" +
-                            "</div>" +
-                        "</div>" +
+                        "<h5 class='text-primary'> " + event.title + " </h5>" +
+                        "<p class='text-sm'> <i class='fa fa-map-marker' aria-hidden='true'></i> " + event.place + "</p>" +
+                        "<div class='text-sm op-5'></div>" +
                     "</div>" +
                 "</div>" +
             "</li>"
-        )
-   }
+        );
+    }
+}
+
+function remove_events(events) {
+    for (const event in events) {
+        let element = document.getElementById(event.pk);
+        element.parentNode.removeChild(element);
+    }
+}
+
+
+function on_load() {
+    create_bot_message(
+        "Bonjour 😄 <br />" +
+        "Je peux t'aider à trouver des évènements sur Paris ! ✨ <br />" +
+        "Parles moi du type d'évènement qui te plairait, " +
+        "de ton budget, de la date qui te conviens " +
+        "et/ou de la localisation qui t'arrange !"
+    )
+    $.ajax({
+        type: "POST",
+        url: "/get_all_events",
+        contentType: "application/json",
+        success: function(result) {
+            // Clear the event list, and add the events we received
+            display_all_events(result.events);
+        }
+    });
 }
 
 
 function submit() {
     const conversation = document.getElementById("conversation");
-    const event_list = document.getElementById("event_list");
     const user_input = document.getElementById("user_input");
     var user_message = user_input.value;
 
@@ -76,13 +92,15 @@ function submit() {
         contentType: "application/json",
         dataType: 'json',
         success: function(result) {
-            // On success:
             // Create a message box with the bot's answer
             create_bot_message(result.message);
             // Clear the event list, and add the events we received
             update_events(result.events);
+        },
+        error: function(xhr) {
+            create_bot_message("Oups, j'ai pété les plombs 🤖");
         }
-      });
+    });
 
     // Empty the input field
     user_input.value = "";

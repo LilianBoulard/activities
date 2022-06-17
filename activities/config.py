@@ -12,13 +12,12 @@ from pytz import timezone as _timezone
 
 project_root: Path = Path(__name__).parent
 
-redis_server_address: str = 'localhost'
+redis_server_address: str = '172.23.0.2'
 redis_server_port: int = 6379
 # Additional config parameters passed to the Redis server
 # See https://redis-py.readthedocs.io/en/stable/connections.html#redis.Redis
 redis_server_config: Dict[str, Any] = {}
 
-model_cookie_name: str = 'model_info'
 secret_key_file: Path = project_root / 'secret_key'
 
 timezone = _timezone('Europe/Paris')

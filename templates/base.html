@@ -7,11 +7,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>activities</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ url_for('static', filename='/font-awesome-4.7.0/css/font-awesome.min.css') }}" />
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
     <script src="{{ url_for('static', filename='chat.js') }}"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script>
-        function clickPress(event) {
+        function submit_on_enter(event) {
             if (event.keyCode == 13 || event.keyCode == 10) {
                 submit();
             }
@@ -19,7 +20,7 @@
     </script>
 </head>
 
-<body>
+<body onload="on_load();">
     <div class="hero is-primary is-fullheight">
        {% block content %}
        {% endblock %}

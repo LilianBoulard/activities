@@ -18,7 +18,6 @@ redis_server_port: int = 6379
 # See https://redis-py.readthedocs.io/en/stable/connections.html#redis.Redis
 redis_server_config: Dict[str, Any] = {}
 
-model_cookie_name: str = 'model_info'
 secret_key_file: Path = project_root / 'secret_key'
 
 timezone = _timezone('Europe/Paris')

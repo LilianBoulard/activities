@@ -1,7 +1,9 @@
 from activities.nlp import Model, NLP
-from activities.config import model_cookie_name
+from activities.database.redis import Event
 from activities.utils import secret_key, decode_json
 
+from typing import List
+from random import shuffle
 from flask import Flask, Blueprint, render_template, jsonify, request, session
 
 
@@ -31,13 +33,27 @@ def create_app():
 _nlp = NLP()
 
 
+def get_events(model: Model) -> List[Event]:
+    return [event.to_json() for event in model.request.query()]
+
+
+@app.route('/get_all_events', methods=['POST'])
+def get_all_events():
+    # Create dummy model, and query with empty parameters, returning all events
+    model = Model()
+    events = get_events(model)
+    shuffle(events)
+    session['displayed_events'] = ';'.join([event['pk'] for event in events])
+    return jsonify({'events': events})
+
+
 @app.route('/')
 def index():
     # Create a new model instance
     model = Model()
     # Store the empty model in the session.
     # This also has the side effect of removing previously stored models.
-    session[model_cookie_name] = model.to_json()
+    session['model_info'] = model.to_json()
     return render_template('index.html')
 
 
@@ -46,19 +62,23 @@ def nltkresponse():
     user_message: str = request.get_json()
     # Get model information from the session.
     # If there is no stored information, creates a new model.
-    model_info = session.get(model_cookie_name, '')
+    model_info = session.get('model_info', '')
     # Create the model object from the info we got
     model = Model.from_json(decode_json(model_info))
     if model.interpret_user_input(user_message):
         # The model has understood the message, and has updated the request.
-        events = model.request.query()
-        events = [event.to_json() for event in events]
+        matching_events = get_events(model)
+        matching_events_ids = {event['pk'] for event in matching_events}
+        displayed_events_ids = set(session.get('displayed_events').split(';'))
+        events_to_hide = displayed_events_ids - matching_events_ids
+        displayed_events_left_ids = displayed_events_ids - events_to_hide
+        session['displayed_events'] = ';'.join(displayed_events_left_ids)
     else:
         # In this case, the list of events on the web page should not change.
         # We pass None (json "null") to denote that.
-        events = None
+        events_to_hide = None
 
     return jsonify({
         'message': f"J'ai bien noté {user_message!r}",
-        'events': events
+        'events': events_to_hide,
     })

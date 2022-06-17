@@ -2,12 +2,11 @@
   box-sizing: border-box;
 }
 
-html {
-    height:100%;
-}
-
-body {
-    height:100%;
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
 }
 
 .hero {
@@ -20,10 +19,23 @@ body {
     position: relative;
 }
 
-# https://stackoverflow.com/questions/10865717/multi-column-vertical-scrolling-in-css-javascript
-.vertical-scrollable {
-    overflow-y: scroll;
-    overflow-x: hidden;
+/* From https://stackoverflow.com/questions/35460406/multiple-iframes-on-one-page-scaling-issue */
+iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+.wrap {
+    position: relative;
+    padding-bottom: 52.68%;
+    padding-top: 30px;
+    padding-left: 0 10px;
+    padding-right: 0 10px;
+    height: 0;
+    overflow: auto;
+    -webkit-overflow-scrolling:touch; /* <<--- THIS IS THE KEY */
 }
 
 .row {
@@ -31,10 +43,16 @@ body {
 }
 
 #user_input {
-    position: absolute;
+    position: fixed;
     bottom: 0;
-    width: auto;
+    width: 33%;
+    margin-left: -12px;
+    margin-right: -12px;
     margin-bottom: 5px;
+}
+
+list-group-item {
+    overflow: auto;
 }
 
 #chat3 .form-control {
