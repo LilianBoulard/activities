@@ -12,7 +12,7 @@ An online demo will soon be available !
 First year master's degree Natural Language Processing project.
 
 This project uses
-- 🤖 [NLTK](https://www.nltk.org/) and [spaCy](https://spacy.io/) for the chatbot
+- 🤖 [spaCy](https://spacy.io/), [Rasa](https://rasa.com/solutions/open-source-nlu-nlp/) and 🤗 [CamemBERT](https://huggingface.co/Jean-Baptiste/camembert-ner-with-dates) for the chatbot
 - 🌶 [Flask](https://flask.palletsprojects.com/en/2.1.x/) for both frontend and backend
 - ⚡ an in-memory [Redis](https://redis.io/) database for lightning fast response times
 - 📚 a [MariaDB](https://mariadb.org/) SQL database to store usage data
@@ -47,16 +47,40 @@ Development is centered around [Flask](https://flask.palletsprojects.com/en/2.1.
 which is the web application framework we use.  
 A [Redis](https://redis.io/) database is used to store the datasets, 
 and a [MariaDB](https://mariadb.org/) database to record app usage.  
-The chatbot is powered by [NLTK](https://www.nltk.org/) and [spaCy](https://spacy.io/) with their machine learning magic ✨
+The chatbot is powered by [spaCy](https://spacy.io/), 
+[Rasa](https://rasa.com/solutions/open-source-nlu-nlp/) and 
+🤗 [CamemBERT](https://huggingface.co/Jean-Baptiste/camembert-ner-with-dates) 
+with their machine learning magic ✨
+
+### 🤔 Design choices
+
+#### Why Redis ?
+
+Datasets wrote in Redis at runtime are afterwards read-only, 
+therefore we don't care about the ACID properties of the database.  
+Furthermore, Redis is known to be extremely fast, which is a plus !
+
+#### Why spaCy, Rasa and CamemBERT ?
+
+spaCy provides pretrained French pipelines, which avoids us doing the tedious
+training part 😄  
+For a similar reason, we use CamemBERT as our Named Entity Recognition (NER) model.
+It helps us extract people, places, organizations and dates from natural language.
+
+#### Why Docker ?
+
+'cause deploying an entire service with essentially one command is cool 😎  
+*(and other techy reasons, but [who cares about that](docker/README.md) 😴)*
 
 ## 🔌 Self-host
 
 ### 🐳 Docker
 
-The simplest way to run this project is to use [Docker](https://www.docker.com/),
-and more specifically, [docker-compose](https://docs.docker.com/compose/).
+The simplest way (and currently the only one) to run this project is to use 
+[Docker](https://www.docker.com/), and more specifically, 
+[docker-compose](https://docs.docker.com/compose/).
 
-To do that, install both, clone the repo with
+To do that, install both, then clone the repo with
 
 ```commandline
 git clone https://github.com/LilianBoulard/activities
