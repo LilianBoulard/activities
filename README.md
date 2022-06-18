@@ -76,7 +76,7 @@ It helps us extract people, places, organizations and dates from natural languag
 
 ### 🐳 Docker
 
-The simplest way (and currently the only one) to run this project is to use 
+The simplest (and currently only) way to run this project is to use 
 [Docker](https://www.docker.com/), and more specifically, 
 [docker-compose](https://docs.docker.com/compose/).
 
