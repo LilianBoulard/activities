@@ -6,6 +6,7 @@ import requests
 
 from functools import reduce
 from datetime import datetime
+from redis_om import Migrator
 from dateutil.parser import isoparse
 from pydantic import ValidationError
 from typing import List, Optional, Generator
@@ -172,8 +173,7 @@ def get_event_from_row(row: dict) -> Optional[Event]:
         event = Event(**values)
     except ValidationError as e:
         print(f'Invalid event: {e}')
-        print(values)
-        exit()
+        return
     else:
         return event
 
@@ -187,20 +187,13 @@ def get_clean_events(records: list) -> Generator[Event, None, None]:
             yield event
 
 
-def que_faire_a_paris() -> None:
+def que_faire_a_paris(force: bool = True) -> None:
     """
     Gets the "Que Faire à Paris ?" dataset and add it to the database.
-    This data source is updated everyday, around 6-7 AM.
+    This data source is updated every day, around 6-7 AM.
     If the database has already been downloaded today, it is read from disk.
     Source: https://opendata.paris.fr/explore/dataset/que-faire-a-paris-/
     """
-
-    last_save = db.lastsave()
-    now = datetime.now(timezone)
-    last_update = datetime(year=now.year, month=now.month, day=now.day, hour=7)
-    if last_save > last_update:
-        print('Data was already modified earlier this day, skipping pull')
-        return
 
     # Get all the event ids we got in the database
     db_record_ids = set()
@@ -208,6 +201,18 @@ def que_faire_a_paris() -> None:
         _, prefix, key = key.split(':')
         db_record_ids.update({key})
     print(f'{len(db_record_ids)} events currently in the database.')
+
+    # If the database is empty, force pull
+    if len(db_record_ids) == 0:
+        force = True
+
+    if not force:
+        last_save = db.lastsave()
+        now = datetime.now(timezone)
+        last_update = datetime(year=now.year, month=now.month, day=now.day, hour=7)
+        if last_save > last_update:
+            print(f'Data was already modified earlier this day ({last_save}), skipping pull')
+            return
 
     # Searches for the 10k first events, with the timezone set on Paris.
     endpoint = ("https://opendata.paris.fr/api/records/1.0/search/"
@@ -233,3 +238,4 @@ def que_faire_a_paris() -> None:
 
 if __name__ == "__main__":
     que_faire_a_paris()
+    Migrator().run()
