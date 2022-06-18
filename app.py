@@ -41,7 +41,7 @@ def get_events(model: Model) -> List[Event]:
 def get_all_events():
     # Create dummy model, and query with empty parameters, returning all events
     model = Model()
-    events = get_events(model)
+    events = get_events(model)[:100]
     shuffle(events)
     session['displayed_events'] = ';'.join([event['pk'] for event in events])
     return jsonify({'events': events})
@@ -70,7 +70,7 @@ def nltkresponse():
         matching_events = get_events(model)
         matching_events_ids = {event['pk'] for event in matching_events}
         displayed_events_ids = set(session.get('displayed_events').split(';'))
-        events_to_hide = displayed_events_ids - matching_events_ids
+        events_to_hide = displayed_events_ids.difference(matching_events_ids)
         displayed_events_left_ids = displayed_events_ids - events_to_hide
         session['displayed_events'] = ';'.join(displayed_events_left_ids)
     else:
@@ -80,5 +80,5 @@ def nltkresponse():
 
     return jsonify({
         'message': f"J'ai bien noté {user_message!r}",
-        'events': events_to_hide,
+        'events': list(events_to_hide),
     })

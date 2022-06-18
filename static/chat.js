@@ -38,8 +38,8 @@ function display_all_events(events) {
 }
 
 function remove_events(events) {
-    for (const event in events) {
-        let element = document.getElementById(event.pk);
+    for (const event of events) {
+        let element = document.getElementById(event);
         element.parentNode.removeChild(element);
     }
 }
@@ -94,8 +94,8 @@ function submit() {
         success: function(result) {
             // Create a message box with the bot's answer
             create_bot_message(result.message);
-            // Clear the event list, and add the events we received
-            update_events(result.events);
+            // Remove from the screen the events that do not match (events)
+            remove_events(result.events);
         },
         error: function(xhr) {
             create_bot_message("Oups, j'ai pété les plombs 🤖");
