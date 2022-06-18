@@ -141,8 +141,8 @@ def get_event_from_row(row: dict) -> Optional[Event]:
         reservation_url=reservation_url,
         reservation_url_description=reservation_url_description,
 
-        date_start=date_start,
-        date_end=date_end,
+        date_start=date_start.timestamp(),
+        date_end=date_end.timestamp(),
 
         price_type=price_type,
         price_detail=price_detail,

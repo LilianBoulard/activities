@@ -7,13 +7,13 @@ Redis resources:
 """
 
 import json
-import datetime
 
-from typing import Optional
-from pydantic import EmailStr, HttpUrl
+from pydantic import HttpUrl
+from datetime import datetime
 from redis_om import HashModel, Field, Migrator, get_redis_connection
 
-from ..config import redis_server_address, redis_server_port, redis_server_config
+from ..config import (redis_server_address, redis_server_port,
+                      redis_server_config, timezone)
 
 
 db = get_redis_connection(
@@ -46,15 +46,16 @@ class Event(HashModel):
     reservation_url: str
     reservation_url_description: str
 
-    date_start: datetime.datetime = Field(index=True, sortable=True)
-    date_end: datetime.datetime = Field(index=True, sortable=True)
+    # TODO: Convert to datetime objects when supported
+    date_start: int = Field(index=True)
+    date_end: int = Field(index=True)
     #occurrences: str
     #date_description: str
 
     price_type: str
     price_detail: str
-    price_start: float = Field(index=True, sortable=True)
-    price_end: float = Field(index=True, sortable=True)
+    price_start: float = Field(index=True)
+    price_end: float = Field(index=True)
 
     # FIXME: Set right types when
     # https://github.com/redis/redis-om-python/issues/254 is fixed
@@ -71,8 +72,8 @@ class Event(HashModel):
     department: int
     district: int = Field(index=True)
 
-    latitude: float = Field(index=True, sortable=True)
-    longitude: float = Field(index=True, sortable=True)
+    latitude: float = Field(index=True)
+    longitude: float = Field(index=True)
 
     # Following fields should be booleans, but it is not yet supported.
     # See https://github.com/redis/redis-om-python/issues/193
@@ -84,4 +85,8 @@ class Event(HashModel):
         database = db
 
     def to_json(self) -> dict:
-        return json.loads(self.json())
+        info = json.loads(self.json())
+        # Convert timestamps to datetime objects
+        info['date_start'] = datetime.fromtimestamp(info['date_start'], tz=timezone)
+        info['date_end'] = datetime.fromtimestamp(info['date_end'], tz=timezone)
+        return info

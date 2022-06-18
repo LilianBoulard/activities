@@ -5,7 +5,6 @@ Implements a request capable of querying the database, given some criterion.
 from functools import reduce
 from datetime import datetime
 from typing import List, Optional
-from pydantic import ValidationError
 
 from .database.redis import Event
 
@@ -66,9 +65,9 @@ class Request:
         # Date criteria
         if self.date_lower_bound is not None and self.date_upper_bound is not None:
             criterion.append(
-                (self.date_lower_bound <= Event.date_start <= self.date_upper_bound)
+                (self.date_lower_bound.timestamp() <= Event.date_start <= self.date_upper_bound.timestamp())
                 |
-                (self.date_lower_bound <= Event.date_end <= self.date_upper_bound)
+                (self.date_lower_bound.timestamp() <= Event.date_end <= self.date_upper_bound.timestamp())
             )
 
         # Tags criteria
