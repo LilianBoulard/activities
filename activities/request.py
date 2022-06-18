@@ -89,18 +89,9 @@ class Request:
 
         if len(criterion) > 0:
             criterion_and = reduce(lambda acc, elem: acc & elem, criterion)
-            events = Event.find(criterion_and).all()
+            events = Event.find(criterion_and)
         else:
-            events = []
-            for pk in Event.all_pks():
-                # FIXME: temporary fix waiting on
-                # https://github.com/redis/redis-om-python/issues/254
-                try:
-                    event = Event.get(pk)
-                except ValidationError:
-                    print(f'Error while loading event {pk}')
-                else:
-                    events.append(event)
+            events = [Event.get(pk) for pk in Event.all_pks()]
         return events
 
     @classmethod
