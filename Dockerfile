@@ -11,9 +11,6 @@ RUN pip install --upgrade --disable-pip-version-check --no-input -r requirements
 # Download the required spacy pipelines
 RUN sh download_pretrained_models.sh
 
-# Overwrite the default config with the one made for docker
-RUN cp docker/config.py activities/
-
 # Expose the required port(s)
 EXPOSE 8000
 
