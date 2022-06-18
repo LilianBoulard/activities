@@ -149,11 +149,11 @@ def get_event_from_row(row: dict) -> Optional[Event]:
         price_start=price_start,
         price_end=price_end,
 
-        contact_url=row.get('contact_url', None),
-        contact_mail=row.get('contact_mail', None),
-        contact_phone=row.get('contact_phone', None),
-        contact_facebook=row.get('contact_facebook', None),
-        contact_twitter=row.get('contact_twitter', None),
+        contact_url=row.get('contact_url', ''),
+        contact_mail=row.get('contact_mail', ''),
+        contact_phone=row.get('contact_phone', ''),
+        contact_facebook=row.get('contact_facebook', ''),
+        contact_twitter=row.get('contact_twitter', ''),
 
         place=place,
         street=street,
@@ -198,7 +198,8 @@ def que_faire_a_paris(force: bool = True) -> None:
     # Get all the event ids we got in the database
     db_record_ids = set()
     for key in db.scan_iter('*'):
-        _, prefix, key = key.split(':')
+        print(key)
+        _, prefix, key, *suffix = key.split(':')
         db_record_ids.update({key})
     print(f'{len(db_record_ids)} events currently in the database.')
 

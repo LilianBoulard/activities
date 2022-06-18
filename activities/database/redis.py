@@ -56,11 +56,13 @@ class Event(HashModel):
     price_start: float = Field(index=True, sortable=True)
     price_end: float = Field(index=True, sortable=True)
 
-    contact_url: Optional[HttpUrl]
-    contact_mail: Optional[EmailStr]
-    contact_phone: Optional[str]
-    contact_facebook: Optional[HttpUrl]
-    contact_twitter: Optional[HttpUrl]
+    # FIXME: Set right types when
+    # https://github.com/redis/redis-om-python/issues/254 is fixed
+    contact_url: str
+    contact_mail: str
+    contact_phone: str
+    contact_facebook: str
+    contact_twitter: str
 
     place: str
     street: str
