@@ -3,7 +3,7 @@ Implements a request capable of querying the database, given some criterion.
 """
 
 from functools import reduce
-from datetime import date as Date
+from datetime import datetime
 from typing import List, Optional
 from pydantic import ValidationError
 
@@ -33,8 +33,8 @@ class Request:
     price_upper_bound: Optional[float] = None
 
     # Date criterion
-    date_lower_bound: Optional[Date] = None
-    date_upper_bound: Optional[Date] = None
+    date_lower_bound: Optional[datetime] = None
+    date_upper_bound: Optional[datetime] = None
 
     # Theme / tag / type criterion
     tags: Optional[List[str]] = None
@@ -58,17 +58,17 @@ class Request:
         # Price criteria
         if self.price_lower_bound is not None and self.price_upper_bound is not None:
             criterion.append(
-                (self.price_lower_bound <= Event.price_start) & (Event.price_start <= self.price_upper_bound)
+                (self.price_lower_bound <= Event.price_start <= self.price_upper_bound)
                 |
-                (self.price_lower_bound <= Event.price_end) & (Event.price_end <= self.price_upper_bound)
+                (self.price_lower_bound <= Event.price_end <= self.price_upper_bound)
             )
 
         # Date criteria
         if self.date_lower_bound is not None and self.date_upper_bound is not None:
             criterion.append(
-                (self.date_lower_bound <= Event.date_start) & (Event.date_start <= self.date_upper_bound)
+                (self.date_lower_bound <= Event.date_start <= self.date_upper_bound)
                 |
-                (self.date_lower_bound <= Event.date_end) & (Event.date_end <= self.date_upper_bound)
+                (self.date_lower_bound <= Event.date_end <= self.date_upper_bound)
             )
 
         # Tags criteria
@@ -89,7 +89,7 @@ class Request:
 
         if len(criterion) > 0:
             criterion_and = reduce(lambda acc, elem: acc & elem, criterion)
-            events = Event.find(criterion_and)
+            events = Event.find(criterion_and).all()
         else:
             events = []
             for pk in Event.all_pks():
