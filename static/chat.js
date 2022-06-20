@@ -31,7 +31,7 @@ function display_all_events(events) {
                             "<h5 class='text-primary'> " + event.title + " </h5>"+
                         "</div>"+
                         "<div class='row align-items-left' id ='place'>"+
-                            "<p class='font-italic'> " + event.place + " </p>"+
+                            "<p class='font-italic'> <i class='fa fa-map-marker' aria-hidden='true'></i> " + event.place + " </p>"+
                         "</div>"+
                         "<div class='row'>"+
                             "<div class='col-sm'>"+
