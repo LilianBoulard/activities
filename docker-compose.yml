@@ -36,7 +36,7 @@ services:
       - sql_bridge
 
   redis:
-    image: redis:latest
+    image: redislabs/redismod:latest
     container_name: redis
     environment:
       - TZ=Europe/Paris
