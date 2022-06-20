@@ -33,11 +33,14 @@ function display_all_events(events) {
                         "<div class='row align-items-left' id ='place'>"+
                             "<p class='font-italic'> " + event.place + " </p>"+
                         "</div>"+
-                        "<div class='row' id ='tag_n_picto'>"+
-                            "<div class='col' id ='tag'>"+
-                                "<p class='font-italic'> " + event.tags + " </p>"+
-                            "<div class='col' id ='picto'>"+
-                                "<img src='/imgRobot.jpg' class='img-fluid' alt='Responsive image'>"+
+                        "<div class='row'>"+
+                            "<div class='col-sm'>"+
+                            event.tags+
+                            "</div>"+
+                            "<div class='col-sm'>"+
+                            "</div>"+
+                            "<div class='col-sm'>"+
+                            "test"+
                             "</div>"+
                         "</div>"+
                     "</div>" +
