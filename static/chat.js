@@ -27,9 +27,19 @@ function display_all_events(events) {
             "<li class='list-group-item' id='" + event.pk + "'>" +
                 "<div class='card row-hover pos-relative py-3 px-3 mb-3 border-warning border-top-0 border-right-0 border-bottom-0 rounded-0'>" +
                     "<div class='row align-items-center'>" +
-                        "<h5 class='text-primary'> " + event.title + " </h5>" +
-                        "<p class='text-sm'> <i class='fa fa-map-marker' aria-hidden='true'></i> " + event.place + "</p>" +
-                        "<div class='text-sm op-5'></div>" +
+                        "<div class='row align-items-left' id ='title'>"+
+                            "<h5 class='text-primary'> " + event.title + " </h5>"+
+                        "</div>"+
+                        "<div class='row align-items-left' id ='place'>"+
+                            "<p class='font-italic'> " + event.place + " </p>"+
+                        "</div>"+
+                        "<div class='row' id ='tag_n_picto'>"+
+                            "<div class='col' id ='tag'>"+
+                                "<p class='font-italic'> " + event.tags + " </p>"+
+                            "<div class='col' id ='picto'>"+
+                                "<img src='/imgRobot.jpg' class='img-fluid' alt='Responsive image'>"+
+                            "</div>"+
+                        "</div>"+
                     "</div>" +
                 "</div>" +
             "</li>"
