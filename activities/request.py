@@ -151,10 +151,9 @@ class Request:
         desc = []
 
         if self.price_lower_bound is not None and self.price_upper_bound is not None:
-            if self.price_lower_bound == self.price_upper_bound:
-                desc.append(f'À {self.price_lower_bound} €')
-            else:
-                desc.append(f'Entre {self.price_upper_bound} et {self.price_upper_bound} €')
+            # We assume both cannot be the same as we added a tolerance
+            # (see price parser)
+            desc.append(f'Entre {self.price_upper_bound} et {self.price_upper_bound} €')
 
         if self.date_lower_bound is not None and self.date_upper_bound is not None:
             if as_readable_date(self.date_lower_bound) == as_readable_date(self.date_upper_bound):
