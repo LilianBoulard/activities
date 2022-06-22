@@ -70,20 +70,14 @@ def nltkresponse():
         session['model_info'] = model.to_json()
         # The model has understood the message, and has updated the request.
         matching_events = get_events(model)
-        matching_events_ids = {event['pk'] for event in matching_events}
-        displayed_events_ids = set(session.get('displayed_events').split(';'))
-        events_to_hide = displayed_events_ids.difference(matching_events_ids)
-        displayed_events_left_ids = displayed_events_ids - events_to_hide
-        session['displayed_events'] = ';'.join(displayed_events_left_ids)
-        events_to_hide = list(events_to_hide)
     else:
         # In this case, the list of events on the web page should not change.
         # We pass None (json "null") to denote that.
-        events_to_hide = None
+        matching_events = []
 
     return jsonify({
         'message': f"J'ai bien noté {user_message!r}",
-        'events': events_to_hide,
+        'events': matching_events,
     })
 
 

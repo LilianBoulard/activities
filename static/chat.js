@@ -27,7 +27,7 @@ function remove_criteria(pill_id) {
 
 function update_pills() {
     const pill_list = document.getElementById("pills");
-    // Empty it
+    // Empty the pill list
     pill_list.innerHTML = "";
     // Populate it with info coming from server
     $.ajax({
@@ -35,7 +35,6 @@ function update_pills() {
         url: "/get_request_info",
         contentType: "application/json",
         success: function(result) {
-            // Clear the event list, and add the events we received
             for (const [index, pill_info] of result.entries()) {
                 pill_list.innerHTML += (
                     "<div class='pill' id='pill_" + index + "'>" +
@@ -61,37 +60,50 @@ function display_all_events(events) {
     for (const event of events) {
         event_list.innerHTML += (
             "<li class='list-group-item' id='" + event.pk + "'>" +
-                "<div class='card row-hover pos-relative py-3 px-3 mb-3 border-warning border-top-0 border-right-0 border-bottom-0 rounded-0'>" +
-                    "<div class='row align-items-center'>" +
-                        "<div class='row align-items-left'>"+
-                            "<h5 class='text-primary'> " + event.title + " </h5>"+
-                        "</div>"+
-                        "<div class='row align-items-left'>"+
-                            "<p class='font-italic'> <i class='fa fa-map-marker' aria-hidden='true'></i> " + event.place + " </p>"+
-                        "</div>"+
-                        "<div class='row'>"+
-                            "<div class='col-sm'>"+
-                            event.tags+
+                "<a target='_blank' href='" + event.url + "'>" +
+                    "<div class='card row-hover pos-relative py-3 px-3 mb-3 border-warning border-top-0 border-right-0 border-bottom-0 rounded-0'>" +
+                        "<div class='row align-items-center'>" +
+                            "<div class='row align-items-left'>"+
+                                "<h5 class='text-primary'> " + event.title + " </h5>"+
                             "</div>"+
-                            "<div class='col-sm'>"+
+                            "<div class='row align-items-left'>"+
+                                "<p class='font-italic'> <i class='fa fa-map-marker' aria-hidden='true'></i> " + event.place + " </p>"+
                             "</div>"+
-                            "<div class='col-sm'>"+
-                            "test"+
+                            "<div class='row'>"+
+                                "<div class='col-sm'>"+
+                                event.tags+
+                                "</div>"+
+                                "<div class='col-sm'>"+
+                                "</div>"+
+                                "<div class='col-sm'>"+
+                                "test"+
+                                "</div>"+
                             "</div>"+
-                        "</div>"+
+                        "</div>" +
                     "</div>" +
-                "</div>" +
+                "</a>" +
             "</li>"
         );
     }
 }
 
 
+/*
 function remove_events(events) {
     for (const event of events) {
         let element = document.getElementById(event);
         element.parentNode.removeChild(element);
     }
+}
+*/
+
+
+function update_events(events) {
+    // TODO: improve so that :
+    //  - it removes events that are already present and  should not anymore
+    //  - it adds missing events
+    // Currently, removes all elements and adds them back again
+    display_all_events(events);
 }
 
 
@@ -108,7 +120,6 @@ function on_load() {
         url: "/get_all_events",
         contentType: "application/json",
         success: function(result) {
-            // Clear the event list, and add the events we receive
             display_all_events(result.events);
         }
     });
@@ -142,11 +153,8 @@ function submit() {
         contentType: "application/json",
         dataType: 'json',
         success: function(result) {
-            // Create a message box with the bot's answer
             create_bot_message(result.message);
-            // Remove from the screen the events that do not match (events)
-            remove_events(result.events);
-            // Update the pills to reflect the criterion
+            update_events(result.events);
             update_pills();
         },
         error: function(xhr) {
