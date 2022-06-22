@@ -1,3 +1,39 @@
+//lien site icon https://fontawesome.com/v4/icons/
+tag_array = {
+    "Atelier":"<i class='fa fa-gavel' aria-hidden='true'></i>",
+    "Conférence":"<i class='fa fa-volume-up' aria-hidden='true'></i>",
+    "Street-art":"<i class='fa fa-building' aria-hidden='true'></i>",
+    "Art contemporain":"",
+    "Expo":"",
+    "Sciences":"",
+    "Cinéma":"<i class='fa fa-film' aria-hidden='true'></i>",
+    "Histoire":"<i class='fa fa-university' aria-hidden='true'></i>",
+    "Humour":"<i class='fa fa-smile-o' aria-hidden='true'></i>",
+    "Concert":"<i class='fa fa-microphone' aria-hidden='true'></i>",
+    "Musique":"<i class='fa fa-music' aria-hidden='true'></i>",
+    "Enfants":"<i class='fa fa-child' aria-hidden='true'></i>",
+    "Loisirs":"",
+    "Photo":"<i class='fa fa-camera-retro' aria-hidden='true'></i>",
+    "Gourmand":"",
+    "Théâtre":"",
+    "LGBT":"<i class='fa fa-venus-double' aria-hidden='true'></i><i class='fa fa-mars-double' aria-hidden='true'></i>",
+    "Danse":"",
+    "Spectacle musical":"",
+    "Littérature":"<i class='fa fa-book' aria-hidden='true'></i>",
+    "Nature":"<i class='fa fa-tree' aria-hidden='true'></i>",
+    "Balade":"",
+    "Sport":"<i class='fa fa-futbol-o' aria-hidden='true'></i>",
+    "Peinture":"<i class='fa fa-paint-brush' aria-hidden='true'></i>",
+    "Innovation":"<i class='fa fa-microchip' aria-hidden='true'></i>",
+    "Clubbing":"",
+    "Solidarité":"<i class='fa fa-users' aria-hidden='true'></i>",
+    "Cirque":"",
+    "Brocante":"<i class='fa fa-dropbox' aria-hidden='true'></i>",
+    "BD":"<i class='fa fa-book' aria-hidden='true'></i>",
+    "Salon":""
+    }
+
+
 function create_bot_message(message) {
     const conversation = document.getElementById("conversation");
 
@@ -58,34 +94,39 @@ function display_all_events(events) {
     // TODO (even later): Make infinite scroll
     event_list.innerHTML = "";
     for (const event of events) {
+        picto="";
+        for(const tag of event.tags.split(";")){
+            if (tag == tag_array[0]){
+                console.log("1");
+            }
+            }
         event_list.innerHTML += (
             "<li class='list-group-item' id='" + event.pk + "'>" +
-                "<a target='_blank' href='" + event.url + "'>" +
-                    "<div class='card row-hover pos-relative py-3 px-3 mb-3 border-warning border-top-0 border-right-0 border-bottom-0 rounded-0'>" +
-                        "<div class='row align-items-center'>" +
-                            "<div class='row align-items-left'>"+
-                                "<h5 class='text-primary'> " + event.title + " </h5>"+
+                "<div class='card row-hover pos-relative py-3 px-3 mb-3 border-warning border-top-0 border-right-0 border-bottom-0 rounded-0'>" +
+                    "<div class='row align-items-center'>" +
+                        "<div class='row align-items-left'>"+
+                            "<h5 class='text-primary'> " + event.title + " </h5>"+
+                        "</div>"+
+                        "<div class='row align-items-left'>"+
+                            "<p class='font-italic'> <i class='fa fa-map-marker' aria-hidden='true'></i> " + event.place + " </p>"+
+                        "</div>"+
+                        "<div class='row'>"+
+                            "<div class='col-sm'>"+
+                            event.tags.replaceAll(";",", ")+
                             "</div>"+
-                            "<div class='row align-items-left'>"+
-                                "<p class='font-italic'> <i class='fa fa-map-marker' aria-hidden='true'></i> " + event.place + " </p>"+
+                            "<div class='col-sm'>"+
                             "</div>"+
-                            "<div class='row'>"+
-                                "<div class='col-sm'>"+
-                                event.tags+
-                                "</div>"+
-                                "<div class='col-sm'>"+
-                                "</div>"+
-                                "<div class='col-sm'>"+
-                                "test"+
-                                "</div>"+
+                            "<div class='col-sm'>"+
+                                picto+
                             "</div>"+
-                        "</div>" +
+                        "</div>"+
                     "</div>" +
-                "</a>" +
+                "</div>" +
             "</li>"
         );
     }
 }
+
 
 
 /*
