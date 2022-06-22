@@ -198,7 +198,6 @@ def que_faire_a_paris(force: bool = True) -> None:
     # Get all the event ids we got in the database
     db_record_ids = set()
     for key in db.scan_iter('*'):
-        print(key)
         _, prefix, key, *suffix = key.split(':')
         db_record_ids.update({key})
     print(f'{len(db_record_ids)} events currently in the database.')

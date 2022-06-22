@@ -131,10 +131,8 @@ class Request:
             return f'{weekday} {dt.day} {month}'
 
         desc = []
-        print(self.to_json())
 
         if self.price_lower_bound is not None and self.price_upper_bound is not None:
-            print('IN !!')
             if self.price_lower_bound == self.price_upper_bound:
                 desc.append(f'À {self.price_lower_bound} €')
             else:
