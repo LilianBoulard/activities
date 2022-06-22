@@ -66,6 +66,8 @@ def nltkresponse():
     # Create the model object from the info we got
     model = Model.from_json(decode_json(model_info))
     if model.interpret_user_input(user_message):
+        # Save the updated model in the session
+        session['model_info'] = model.to_json()
         # The model has understood the message, and has updated the request.
         matching_events = get_events(model)
         matching_events_ids = {event['pk'] for event in matching_events}
