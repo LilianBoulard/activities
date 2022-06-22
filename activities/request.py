@@ -46,6 +46,24 @@ class Request:
     def __init__(self):
         pass
 
+    def attributes(self) -> List[str]:
+        """
+        Returns the list of attributes settable in this request.
+        """
+        return [
+            attribute.__name__
+            for attribute in (
+                self.price_lower_bound,
+                self.price_upper_bound,
+                self.date_lower_bound,
+                self.date_upper_bound,
+                self.tags,
+                self.district,
+                self.longitude,
+                self.latitude,
+            )
+        ]
+
     def query(self) -> List[Event]:
         """
         Queries the database, returning the list of events matching the
@@ -172,50 +190,31 @@ class Request:
             longitude=lambda val: float(val),
         )
 
-        # Set all values programmatically
-        for field, operation in operations.items():
-            value = info.get(field, None)
-            if value is not None:
-                req.__setattr__(field, operation(value))
+        for attribute in req.attributes():
+            value = info.get(attribute, None)
+            if value is None:
+                continue
+            operation = operations.get(value, lambda val: val)
+            req.__setattr__(attribute, operation(value))
 
         return req
 
     def to_json(self) -> dict:
-        # Init with standard values (not converted to the correct type)
-        info = dict(
-            price_lower_bound=self.price_lower_bound,
-            price_upper_bound=self.price_upper_bound,
-
-            date_lower_bound=self.date_lower_bound,
-            date_upper_bound=self.date_upper_bound,
-
-            tags=self.tags,
-
-            district=self.district,
-            latitude=self.latitude,
-            longitude=self.longitude,
-        )
-
         # Maps a key name to an operation to perform to get the right type
         # This operation will not be executed if the value is None
+        # If no operation is necessary, do not specify any
         operations = dict(
-            price_lower_bound=lambda val: val,
-            price_upper_bound=lambda val: val,
-
             date_lower_bound=lambda val: val.isoformat(),
             date_upper_bound=lambda val: val.isoformat(),
-
-            tags=lambda val: val,
-
-            district=lambda val: val,
-            latitude=lambda val: val,
-            longitude=lambda val: val,
         )
 
+        info = {}
         # Filter out nones and convert to right type
-        info = {
-            key: operations[key](value)
-            for key, value in info.items()
-            if value is not None
-        }
+        for attribute in self.attributes():
+            value = self.__getattribute__(attribute)
+            if value is None:
+                continue
+            operation = operations.get(attribute, lambda val: val)
+            info.update({attribute: operation(value)})
+
         return info
