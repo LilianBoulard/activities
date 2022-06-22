@@ -17,7 +17,7 @@ class PriceParser:
     def _clean_match(self, match: str) -> str:
         return match.replace(',', '.')
 
-    def __call__(self, sentence: str) -> Optional[Tuple[float, float]]:
+    def __call__(self, sentence: str) -> Optional[Tuple[int, int]]:
         prices_found = re.findall(price_regex, sentence)
 
         # FIXME: Hackish
@@ -29,11 +29,10 @@ class PriceParser:
             matches.remove('')
             # Keep only the first integer value
             for match in matches:
-                try:
-                    price = float(self._clean_match(match))
+                price = self._clean_match(match)
+                if price.isnumeric():
+                    price = int(price)
                     break
-                except ValueError:
-                    continue
             else:
                 # If we did not find any integer value,
                 # print a warning and skip this price

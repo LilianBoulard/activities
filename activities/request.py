@@ -28,8 +28,8 @@ class Request:
     """
 
     # Price criterion
-    price_lower_bound: Optional[float] = None
-    price_upper_bound: Optional[float] = None
+    price_lower_bound: Optional[int] = None
+    price_upper_bound: Optional[int] = None
 
     # Date criterion
     date_lower_bound: Optional[datetime] = None
@@ -93,15 +93,97 @@ class Request:
             events = [Event.get(pk) for pk in Event.all_pks()]
         return events
 
+    def get_fields_desc(self) -> List[str]:
+        """
+        Returns a human-readable description of each completed field.
+        For example, if `price_lower_bound` and `price_upper_bound` are set
+        to 4 and 6 respectively, it will return "Entre 4 et 6 €".
+        """
+
+        def as_readable_date(dt: datetime) -> str:
+            weekday_map = (
+                'lundi',
+                'mardi',
+                'mercredi',
+                'jeudi',
+                'vendredi',
+                'samedi',
+                'dimanche',
+            )
+            weekday = weekday_map[dt.weekday()]
+
+            month_map = (
+                'janvier',
+                'février',
+                'mars',
+                'avril',
+                'mai',
+                'juin',
+                'juillet',
+                'aout',
+                'septembre',
+                'octobre',
+                'novembre',
+                'décembre',
+            )
+            month = month_map[dt.month - 1]
+
+            return f'{weekday} {dt.day} {month}'
+
+        desc = []
+        print(self.to_json())
+
+        if self.price_lower_bound is not None and self.price_upper_bound is not None:
+            print('IN !!')
+            if self.price_lower_bound == self.price_upper_bound:
+                desc.append(f'À {self.price_lower_bound} €')
+            else:
+                desc.append(f'Entre {self.price_upper_bound} et {self.price_upper_bound} €')
+
+        if self.date_lower_bound is not None and self.date_upper_bound is not None:
+            if as_readable_date(self.date_lower_bound) == as_readable_date(self.date_upper_bound):
+                desc.append(f'Le {as_readable_date(self.date_lower_bound)}')
+            else:
+                desc.append(f'Entre le {as_readable_date(self.date_lower_bound)} et le {as_readable_date(self.date_upper_bound)}')
+
+        if self.tags:
+            desc.extend(self.tags)
+
+        if self.district is not None:
+            desc.append(f'{self.district}e arrondissement')
+
+        return desc
+
     @classmethod
     def from_json(cls, info: dict):
         req = cls()
+
+        # Maps a key name to an operation to perform to get the right type
+        # This operation will not be executed if the value is None
+        operations = dict(
+            price_lower_bound=lambda val: int(val),
+            price_upper_bound=lambda val: int(val),
+
+            date_lower_bound=lambda val: datetime.fromisoformat(val),
+            date_upper_bound=lambda val: datetime.fromisoformat(val),
+
+            tags=lambda val: val,
+
+            district=lambda val: int(val),
+            latitude=lambda val: float(val),
+            longitude=lambda val: float(val),
+        )
+
         # Set all values programmatically
-        for key, value in info:
-            req.__setattr__(key, value)
+        for field, operation in operations.items():
+            value = info.get(field, None)
+            if value is not None:
+                req.__setattr__(field, operation(value))
+
         return req
 
     def to_json(self) -> dict:
+        # Init with standard values (not converted to the correct type)
         info = dict(
             price_lower_bound=self.price_lower_bound,
             price_upper_bound=self.price_upper_bound,
@@ -115,9 +197,26 @@ class Request:
             latitude=self.latitude,
             longitude=self.longitude,
         )
-        # Filter out nones
+
+        # Maps a key name to an operation to perform to get the right type
+        # This operation will not be executed if the value is None
+        operations = dict(
+            price_lower_bound=lambda val: val,
+            price_upper_bound=lambda val: val,
+
+            date_lower_bound=lambda val: val.isoformat(),
+            date_upper_bound=lambda val: val.isoformat(),
+
+            tags=lambda val: val,
+
+            district=lambda val: val,
+            latitude=lambda val: val,
+            longitude=lambda val: val,
+        )
+
+        # Filter out nones and convert to right type
         info = {
-            key: value
+            key: operations[key](value)
             for key, value in info.items()
             if value is not None
         }
