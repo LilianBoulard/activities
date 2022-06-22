@@ -85,3 +85,10 @@ def nltkresponse():
         'message': f"J'ai bien noté {user_message!r}",
         'events': events_to_hide,
     })
+
+
+@app.route('/get_request_info', methods=['POST'])
+def get_request_info():
+    model_info = session.get('model_info', '')
+    model = Model.from_json(decode_json(model_info))
+    return jsonify(model.request.get_fields_desc())

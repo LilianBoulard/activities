@@ -71,10 +71,29 @@ list-group-item {
     max-width: 100%;
 }
 
-.badge-dot {
-    border-radius: 50%;
-    height: 10px;
-    width: 10px;
-    margin-left: 2.9rem;
-    margin-top: -.75rem;
+.pill {
+    display: flex;
+    align-items: center;
+    border: none;
+    color: white;
+    padding: 0;
+    border-radius: 4px;
+    margin: 4px;
+}
+
+.remove {
+    padding: 4px;
+    background-color: #FF6000;
+    border-radius: 4px 0 0 4px;
+	color: inherit;
+	border: none;
+	font: inherit;
+	cursor: pointer;
+	outline: inherit;
+}
+
+.text {
+    padding: 4px;
+    border-radius: 0 4px 4px 0;
+    background-color: #FF9E00;
 }

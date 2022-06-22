@@ -17,6 +17,42 @@ function create_bot_message(message) {
 }
 
 
+function remove_criteria(pill_id) {
+    // TODO: Remove criteria from model
+    // Remove the pill from the screen
+    pill = document.getElementById(pill_id);
+    pill.parentNode.removeChild(pill);
+}
+
+
+function update_pills() {
+    const pill_list = document.getElementById("pills");
+    // Empty it
+    pill_list.innerHTML = "";
+    // Populate it with info coming from server
+    $.ajax({
+        type: "POST",
+        url: "/get_request_info",
+        contentType: "application/json",
+        success: function(result) {
+            // Clear the event list, and add the events we received
+            for (const [index, pill_info] of result.entries()) {
+                pill_list.innerHTML += (
+                    "<div class='pill' id='pill_" + index + "'>" +
+                        "<button class='remove' onClick='remove_criteria(\"pill_" + index + "\")'>" +
+                            "X" +
+                        "</button>" +
+                        "<div class='text'>" +
+                            pill_info +
+                        "</div>" +
+                    "</div>"
+                )
+            }
+        }
+    });
+}
+
+
 function display_all_events(events) {
     const event_list = document.getElementById("event_list");
     // TODO: limit number of events shown
@@ -27,10 +63,10 @@ function display_all_events(events) {
             "<li class='list-group-item' id='" + event.pk + "'>" +
                 "<div class='card row-hover pos-relative py-3 px-3 mb-3 border-warning border-top-0 border-right-0 border-bottom-0 rounded-0'>" +
                     "<div class='row align-items-center'>" +
-                        "<div class='row align-items-left' id ='title'>"+
+                        "<div class='row align-items-left'>"+
                             "<h5 class='text-primary'> " + event.title + " </h5>"+
                         "</div>"+
-                        "<div class='row align-items-left' id ='place'>"+
+                        "<div class='row align-items-left'>"+
                             "<p class='font-italic'> <i class='fa fa-map-marker' aria-hidden='true'></i> " + event.place + " </p>"+
                         "</div>"+
                         "<div class='row'>"+
@@ -49,6 +85,7 @@ function display_all_events(events) {
         );
     }
 }
+
 
 function remove_events(events) {
     for (const event of events) {
@@ -71,7 +108,7 @@ function on_load() {
         url: "/get_all_events",
         contentType: "application/json",
         success: function(result) {
-            // Clear the event list, and add the events we received
+            // Clear the event list, and add the events we receive
             display_all_events(result.events);
         }
     });
@@ -109,6 +146,8 @@ function submit() {
             create_bot_message(result.message);
             // Remove from the screen the events that do not match (events)
             remove_events(result.events);
+            // Update the pills to reflect the criterion
+            update_pills();
         },
         error: function(xhr) {
             create_bot_message("Oups, j'ai pété les plombs 🤖");
