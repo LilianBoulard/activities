@@ -2,6 +2,10 @@
   box-sizing: border-box;
 }
 
+.text-primary {
+    color: #FF6000 !important;
+}
+
 html, body {
     margin: 0;
     padding: 0;
@@ -54,6 +58,17 @@ iframe {
 
 list-group-item {
     overflow: auto;
+    color: white;
+    cursor: pointer;
+}
+
+a {
+  color: inherit;
+  text-decoration: inherit;
+}
+a:hover {
+  color: inherit;
+  text-decoration: inherit;
 }
 
 #chat3 .form-control {
