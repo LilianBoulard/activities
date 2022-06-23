@@ -10,6 +10,7 @@ from redis_om import Migrator
 from dateutil.parser import isoparse
 from pydantic import ValidationError
 from typing import List, Optional, Generator
+from networkx import MultiDiGraph, write_gpickle
 
 from activities.config import timezone
 from activities.utils import decode_json
@@ -38,9 +39,13 @@ def get_event_from_row(row: dict) -> Optional[Event]:
     if not title:
         return
 
-    tags = row.get('tags', None)
-    if not tags:
+    raw_tags = row.get('tags', None)
+    if not raw_tags:
         return
+    tags = ';'.join([
+        tag.lower().replace('-', '_').replace(' ', '_')
+        for tag in raw_tags.split(';')
+    ])
 
     # Process reservation info
     reservation_required_val = row.get('access_type', None)
@@ -187,7 +192,7 @@ def get_clean_events(records: list) -> Generator[Event, None, None]:
             yield event
 
 
-def que_faire_a_paris(force: bool = True) -> None:
+def que_faire_a_paris(force: bool = True) -> bool:
     """
     Gets the "Que Faire à Paris ?" dataset and add it to the database.
     This data source is updated every day, around 6-7 AM.
@@ -212,15 +217,18 @@ def que_faire_a_paris(force: bool = True) -> None:
         last_update = datetime(year=now.year, month=now.month, day=now.day, hour=7)
         if last_save > last_update:
             print(f'Data was already modified earlier this day ({last_save}), skipping pull')
-            return
+            return False
 
+    endpoint = "https://opendata.paris.fr/api/records/1.0/search/"
     # Searches for the 10k first events, with the timezone set on Paris.
-    endpoint = ("https://opendata.paris.fr/api/records/1.0/search/"
-                "?dataset=que-faire-a-paris-&q="
-                "&rows=10000"
-                "&timezone=Europe%2FParis")
+    params = {
+        'dataset': 'que-faire-a-paris-',
+        'q': '',
+        'rows': 10_000,
+        'timezone': 'Europe/Paris'
+    }
 
-    with requests.get(endpoint, headers=headers) as r:
+    with requests.get(endpoint, params=params, headers=headers) as r:
         data = decode_json(r.text)
 
     inserted = 0
@@ -234,8 +242,63 @@ def que_faire_a_paris(force: bool = True) -> None:
 
     db.save()
     print(f'{inserted} events inserted in the database')
+    return True
+
+
+def download_conceptnet():
+    """
+    Downloads a subset of ConceptNet (https://conceptnet.io/)
+    and construct a usable graph, which is then stored on disk.
+    """
+
+    def _get_tag(tag: str):
+        """
+        Downloads the information linked to the tag, and returns a format which
+        can be easily added to the existing graph.
+        """
+        params = {
+            'start': f'/c/fr/{tag}',
+            'other': '/c/fr',  # Only keep results in French
+            'limit': 5000
+        }
+        with requests.get('https://api.conceptnet.io/query', params=params) as r:
+            info = decode_json(r.text)
+
+            nodes = set()
+            edges = []
+            for edge in info['edges']:
+                node_start = edge['start']['label']
+                node_end = edge['end']['label']
+                nodes.update({node_start, node_end})
+                edges.append((
+                    node_start, node_end, edge['rel']['label'], edge['weight'],
+                ))
+        return nodes, edges
+
+    # Get all the tags from the database
+    tags = set()
+    for pk in Event.all_pks():
+        event = Event.get(pk)
+        tags.update(event.tags.split(';'))
+    print(f'Found {len(tags)} tags: {tags}')
+
+    # Create the graph
+    graph = MultiDiGraph()
+    # and populate it
+    for tag in tags:
+        nodes, edges = _get_tag(tag)
+        graph.add_nodes_from(nodes)
+        for edge in edges:
+            u, v, key, weight = edge
+            graph.add_edge(u, v, key=key, weight=weight)
+    print(f'Got {len(graph.nodes)} nodes and {len(graph.edges)} edges')
+
+    write_gpickle(graph, 'conceptnet.gpickle')
+    print('Wrote graph on disk')
 
 
 if __name__ == "__main__":
-    que_faire_a_paris()
+    was_updated = que_faire_a_paris()
     Migrator().run()
+    if was_updated:
+        download_conceptnet()

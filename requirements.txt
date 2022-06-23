@@ -15,6 +15,7 @@ pytz
 parsedatetime
 python-Levenshtein
 varname
+networkx
 
 flask_sqlalchemy
 flask_login
