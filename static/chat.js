@@ -1,35 +1,35 @@
 //lien site icon https://fontawesome.com/v4/icons/
 tag_array = {
-    "Atelier":"<i class='fa fa-gavel' aria-hidden='true'></i>",
-    "Conférence":"<i class='fa fa-volume-up' aria-hidden='true'></i>",
-    "Street-art":"<i class='fa fa-building' aria-hidden='true'></i>",
+    "Atelier":"<i class='fa fa-gavel fa-lg' aria-hidden='true'></i>",
+    "Conférence":"<i class='fa fa-volume-up fa-lg' aria-hidden='true'></i>",
+    "Street-art":"<i class='fa fa-building fa-lg' aria-hidden='true'></i>",
     "Art contemporain":"",
     "Expo":"",
     "Sciences":"",
-    "Cinéma":"<i class='fa fa-film' aria-hidden='true'></i>",
-    "Histoire":"<i class='fa fa-university' aria-hidden='true'></i>",
-    "Humour":"<i class='fa fa-smile-o' aria-hidden='true'></i>",
-    "Concert":"<i class='fa fa-microphone' aria-hidden='true'></i>",
-    "Musique":"<i class='fa fa-music' aria-hidden='true'></i>",
-    "Enfants":"<i class='fa fa-child' aria-hidden='true'></i>",
+    "Cinéma":"<i class='fa fa-film fa-lg' aria-hidden='true'></i>",
+    "Histoire":"<i class='fa fa-university fa-lg' aria-hidden='true'></i>",
+    "Humour":"<i class='fa fa-smile-o fa-lg' aria-hidden='true'></i>",
+    "Concert":"<i class='fa fa-microphone fa-lg' aria-hidden='true'></i>",
+    "Musique":"<i class='fa fa-music fa-lg' aria-hidden='true'></i>",
+    "Enfants":"<i class='fa fa-child fa-lg' aria-hidden='true'></i>",
     "Loisirs":"",
-    "Photo":"<i class='fa fa-camera-retro' aria-hidden='true'></i>",
+    "Photo":"<i class='fa fa-camera-retro fa-lg' aria-hidden='true'></i>",
     "Gourmand":"",
     "Théâtre":"",
-    "LGBT":"<i class='fa fa-venus-double' aria-hidden='true'></i><i class='fa fa-mars-double' aria-hidden='true'></i>",
+    "LGBT":"<i class='fa fa-venus-double fa-lg' aria-hidden='true'></i><i class='fa fa-mars-double fa-4px' aria-hidden='true'></i>",
     "Danse":"",
     "Spectacle musical":"",
-    "Littérature":"<i class='fa fa-book' aria-hidden='true'></i>",
-    "Nature":"<i class='fa fa-tree' aria-hidden='true'></i>",
+    "Littérature":"<i class='fa fa-book fa-lg' aria-hidden='true'></i>",
+    "Nature":"<i class='fa fa-tree fa-lg' aria-hidden='true'></i>",
     "Balade":"",
-    "Sport":"<i class='fa fa-futbol-o' aria-hidden='true'></i>",
-    "Peinture":"<i class='fa fa-paint-brush' aria-hidden='true'></i>",
-    "Innovation":"<i class='fa fa-microchip' aria-hidden='true'></i>",
+    "Sport":"<i class='fa fa-futbol-o fa-lg' aria-hidden='true'></i>",
+    "Peinture":"<i class='fa fa-paint-brush fa-lg' aria-hidden='true'></i>",
+    "Innovation":"<i class='fa fa-microchip fa-lg' aria-hidden='true'></i>",
     "Clubbing":"",
-    "Solidarité":"<i class='fa fa-users' aria-hidden='true'></i>",
+    "Solidarité":"<i class='fa fa-users fa-lg' aria-hidden='true'></i>",
     "Cirque":"",
-    "Brocante":"<i class='fa fa-dropbox' aria-hidden='true'></i>",
-    "BD":"<i class='fa fa-book' aria-hidden='true'></i>",
+    "Brocante":"<i class='fa fa-dropbox fa-lg' aria-hidden='true'></i>",
+    "BD":"<i class='fa fa-book fa-lg' aria-hidden='true'></i>",
     "Salon":""
     }
 
@@ -95,9 +95,13 @@ function display_all_events(events) {
     event_list.innerHTML = "";
     for (const event of events) {
         picto="";
-        for(const tag of event.tags.split(";")){
-            if (tag == tag_array[0]){
-                console.log("1");
+        
+        for(var tag of event.tags.split(";")){
+            //console.log(String(tag));
+            //console.log(tag_array["test"]);
+            if (tag_array[tag] != undefined){
+                console.log(tag_array[tag]+" ")
+                picto += tag_array[tag]+"&nbsp;&nbsp;&nbsp;";
             }
             }
         event_list.innerHTML += (
@@ -111,12 +115,12 @@ function display_all_events(events) {
                             "<p class='font-italic'> <i class='fa fa-map-marker' aria-hidden='true'></i> " + event.place + " </p>"+
                         "</div>"+
                         "<div class='row'>"+
-                            "<div class='col-sm'>"+
-                            event.tags.replaceAll(";",", ")+
+                            "<div class='col-lg'>"+
+                            event.tags.replaceAll(";","  -  ")+
                             "</div>"+
-                            "<div class='col-sm'>"+
+                            "<div class='col-sm-2'>"+
                             "</div>"+
-                            "<div class='col-sm'>"+
+                            "<div class='col-lg'>"+
                                 picto+
                             "</div>"+
                         "</div>"+
