@@ -101,7 +101,7 @@ function display_all_events(events) {
             //console.log(tag_array["test"]);
             if (tag_array[tag] != undefined){
                 console.log(tag_array[tag]+" ")
-                picto += tag_array[tag]+"&nbsp;&nbsp;&nbsp;";
+                picto += tag_array[tag]+"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
             }
             }
         event_list.innerHTML += (
