@@ -46,22 +46,22 @@ class PriceParser:
         # FIXME: Hackish
         all_prices = []
         for price_matches in prices_found:
+            found_prices = []
             # Remove duplicates
             matches = list(set(price_matches))
             # Remove empty values
             matches.remove('')
             # Keep only the first integer value
             for match in matches:
-                price = self._clean_match(match)
-                if price.isnumeric():
-                    price = int(price)
-                    break
-            else:
+                potential_price = self._clean_match(match)
+                if potential_price.isnumeric():
+                    found_prices.append(int(potential_price))
+            if not found_prices:
                 # If we did not find any integer value,
                 # print a warning and skip this price
                 print(f'Match did not contain any valid price: {matches}')
                 continue
-            all_prices.append(price)
+            all_prices.extend(found_prices)
 
         if not all_prices:
             # We did not find any price
@@ -72,6 +72,6 @@ class PriceParser:
         if min_price == max_price:
             tolerance_left, tolerance_right = self._get_tolerance(min_price)
             min_price -= tolerance_left
-            max_price -= tolerance_right
+            max_price += tolerance_right
 
         return min_price, max_price
