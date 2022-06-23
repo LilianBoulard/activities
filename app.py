@@ -65,7 +65,8 @@ def nltkresponse():
     model_info = session.get('model_info', '')
     # Create the model object from the info we got
     model = Model.from_json(decode_json(model_info))
-    if model.interpret_user_input(user_message):
+    understood_something, answer = model.interpret_user_input(user_message)
+    if understood_something:
         # Save the updated model in the session
         session['model_info'] = model.to_json()
         # The model has understood the message, and has updated the request.
@@ -76,7 +77,7 @@ def nltkresponse():
         matching_events = []
 
     return jsonify({
-        'message': f"J'ai bien noté {user_message!r}",
+        'message': answer,
         'events': matching_events,
     })
 

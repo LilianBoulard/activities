@@ -11,7 +11,11 @@ Resources:
 
 from __future__ import annotations
 
+from typing import Set
+from varname import nameof
+
 from ._nlp import NLP
+from ..answer import Answer
 from ..request import Request
 from ..utils import encode_json
 from .parsers import DateParser, TypeParser, PriceParser
@@ -31,6 +35,8 @@ class Model:
 
     """
 
+    _answerer = Answer()
+
     # Instantiate stateless parsers
     date_parser = DateParser()
     type_parser = TypeParser()
@@ -42,13 +48,15 @@ class Model:
         # Create a new request
         self.request = Request()
 
-    def interpret_user_input(self, user_input: str) -> bool:
+    @_answerer
+    def interpret_user_input(self, user_input: str) -> Set[str]:
         """
         Takes a string - the sentence input by the user - interprets it,
-        and returns True if it has been interpreted successfully,
-        False otherwise.
+        and returns a list of updated fields in the request.
+        When decorated with an answerer, returns a natural language string
+        meant to be passed to the user.
         """
-        understood_something = False
+        updated_fields = set()
 
         # Process the user input with the NLP pipeline
         document = self._nlp(user_input)
@@ -62,8 +70,11 @@ class Model:
                     date_start, date_end = date_range  # Unpack
                     self.request.date_lower_bound = date_start
                     self.request.date_upper_bound = date_end
+                    updated_fields.update({
+                        nameof(self.request.date_lower_bound),
+                        nameof(self.request.date_upper_bound),
+                    })
                     print(f'Found {date_start} to {date_end} for {entity["word"]}')
-                    understood_something = True
                 continue
 
             # Process the type
@@ -78,10 +89,13 @@ class Model:
             price_start, price_end = price_found  # Unpack
             self.request.price_lower_bound = price_start
             self.request.price_upper_bound = price_end
+            updated_fields.update({
+                nameof(self.request.price_upper_bound),
+                nameof(self.request.price_lower_bound),
+            })
             print(f'Found price range: {price_start} to {price_end}')
-            understood_something = True
 
-        return understood_something
+        return updated_fields
 
     @classmethod
     def from_json(cls, info: dict) -> Model:

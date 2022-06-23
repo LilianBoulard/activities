@@ -19,6 +19,7 @@ transformers[sentencepiece]
 torch
 torchvision
 torchaudio
+varname
 
 flask_sqlalchemy
 flask_login
