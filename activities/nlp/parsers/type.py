@@ -1,3 +1,9 @@
+"""
+Resources:
+- https://github.com/commonsense/conceptnet5
+- Semantic Association
+"""
+
 from typing import Optional, List, Set
 
 from ...database.redis import Event
