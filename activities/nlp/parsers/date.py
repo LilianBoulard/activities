@@ -215,3 +215,34 @@ class DateParser:
             return
 
         return date_start, date_end
+
+    @staticmethod
+    def as_readable_date(dt: datetime) -> str:
+        weekday_map = (
+            'lundi',
+            'mardi',
+            'mercredi',
+            'jeudi',
+            'vendredi',
+            'samedi',
+            'dimanche',
+        )
+        weekday = weekday_map[dt.weekday()]
+
+        month_map = (
+            'janvier',
+            'février',
+            'mars',
+            'avril',
+            'mai',
+            'juin',
+            'juillet',
+            'aout',
+            'septembre',
+            'octobre',
+            'novembre',
+            'décembre',
+        )
+        month = month_map[dt.month - 1]
+
+        return f'{weekday} {dt.day} {month}'

@@ -2,11 +2,13 @@
 Implements a request capable of querying the database, given some criterion.
 """
 
+from varname import nameof
 from functools import reduce
 from datetime import datetime
 from typing import List, Optional
 
 from .database.redis import Event
+from .nlp.parsers import DateParser
 
 
 class Request:
@@ -51,17 +53,14 @@ class Request:
         Returns the list of attributes settable in this request.
         """
         return [
-            attribute.__name__
-            for attribute in (
-                self.price_lower_bound,
-                self.price_upper_bound,
-                self.date_lower_bound,
-                self.date_upper_bound,
-                self.tags,
-                self.district,
-                self.longitude,
-                self.latitude,
-            )
+            nameof(self.price_lower_bound),
+            nameof(self.price_upper_bound),
+            nameof(self.date_lower_bound),
+            nameof(self.date_upper_bound),
+            nameof(self.tags),
+            nameof(self.district),
+            nameof(self.longitude),
+            nameof(self.latitude),
         ]
 
     def query(self) -> List[Event]:
@@ -115,51 +114,22 @@ class Request:
         """
         Returns a human-readable description of each completed field.
         For example, if `price_lower_bound` and `price_upper_bound` are set
-        to 4 and 6 respectively, it will return "Entre 4 et 6 €".
+        to 4 and 6 respectively, it will return ["Entre 4 et 6 €"].
         """
-
-        def as_readable_date(dt: datetime) -> str:
-            weekday_map = (
-                'lundi',
-                'mardi',
-                'mercredi',
-                'jeudi',
-                'vendredi',
-                'samedi',
-                'dimanche',
-            )
-            weekday = weekday_map[dt.weekday()]
-
-            month_map = (
-                'janvier',
-                'février',
-                'mars',
-                'avril',
-                'mai',
-                'juin',
-                'juillet',
-                'aout',
-                'septembre',
-                'octobre',
-                'novembre',
-                'décembre',
-            )
-            month = month_map[dt.month - 1]
-
-            return f'{weekday} {dt.day} {month}'
+        dp = DateParser()
 
         desc = []
 
         if self.price_lower_bound is not None and self.price_upper_bound is not None:
             # We assume both cannot be the same as we added a tolerance
             # (see price parser)
-            desc.append(f'Entre {self.price_upper_bound} et {self.price_upper_bound} €')
+            desc.append(f'Entre {self.price_lower_bound} et {self.price_upper_bound} €')
 
         if self.date_lower_bound is not None and self.date_upper_bound is not None:
-            if as_readable_date(self.date_lower_bound) == as_readable_date(self.date_upper_bound):
-                desc.append(f'Le {as_readable_date(self.date_lower_bound)}')
+            if dp.as_readable_date(self.date_lower_bound) == dp.as_readable_date(self.date_upper_bound):
+                desc.append(f'Le {dp.as_readable_date(self.date_lower_bound)}')
             else:
-                desc.append(f'Entre le {as_readable_date(self.date_lower_bound)} et le {as_readable_date(self.date_upper_bound)}')
+                desc.append(f'Entre le {dp.as_readable_date(self.date_lower_bound)} et le {dp.as_readable_date(self.date_upper_bound)}')
 
         if self.tags:
             desc.extend(self.tags)
@@ -182,8 +152,6 @@ class Request:
             date_lower_bound=lambda val: datetime.fromisoformat(val),
             date_upper_bound=lambda val: datetime.fromisoformat(val),
 
-            tags=lambda val: val,
-
             district=lambda val: int(val),
             latitude=lambda val: float(val),
             longitude=lambda val: float(val),
@@ -193,7 +161,7 @@ class Request:
             value = info.get(attribute, None)
             if value is None:
                 continue
-            operation = operations.get(value, lambda val: val)
+            operation = operations.get(attribute, lambda val: val)
             req.__setattr__(attribute, operation(value))
 
         return req
