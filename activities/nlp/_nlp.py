@@ -1,16 +1,10 @@
-from transformers import AutoTokenizer, AutoModelForTokenClassification, pipeline
+import spacy
 
 from ..design import Singleton, apply_init_callback_to_singleton
 
 
 def load_nlp(instance):
-    # Load https://huggingface.co/Jean-Baptiste/camembert-ner-with-dates
-    tokenizer = AutoTokenizer.from_pretrained(
-        "Jean-Baptiste/camembert-ner-with-dates")
-    model = AutoModelForTokenClassification.from_pretrained(
-        "Jean-Baptiste/camembert-ner-with-dates")
-    instance._nlp = pipeline('ner', model=model, tokenizer=tokenizer,
-                             aggregation_strategy="simple")
+    instance._nlp = spacy.load('fr_core_news_sm')
 
 
 @apply_init_callback_to_singleton(load_nlp)
@@ -25,6 +19,3 @@ class NLP(Singleton):
 
     def __call__(self, user_input: str):
         return self._nlp(user_input)
-
-    #def ner(self, user_input: str):
-    #    return self._ner(user_input)

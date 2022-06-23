@@ -14,11 +14,6 @@ spacy
 pytz
 parsedatetime
 python-Levenshtein
-transformers
-transformers[sentencepiece]
-torch
-torchvision
-torchaudio
 varname
 
 flask_sqlalchemy
