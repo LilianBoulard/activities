@@ -9,7 +9,7 @@ from typing import Optional, List, Set
 from ...database.redis import Event
 
 
-def _get_unique_types() -> Set[str]:
+def get_unique_tags() -> Set[str]:
     events = Event.all_pks()
     tags = set()
     for event in events:
@@ -24,7 +24,9 @@ class TypeParser:
     """
 
     # At runtime, collect all the unique types found in the database.
-    #unique_types = _get_unique_types()
+    unique_types = get_unique_tags()
 
-    def __call__(self, user_input: str) -> Optional[List[str]]:
-        pass
+    def __call__(self, tokens: List[str]) -> Optional[List[str]]:
+        # Remove the duplicates in the tokens
+        # (we don't want to explore the graph twice for the same token)
+        tokens = set(tokens)

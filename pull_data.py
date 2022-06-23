@@ -16,6 +16,7 @@ from activities.config import timezone
 from activities.utils import decode_json
 from activities.nlp.parsers import PriceParser
 from activities.database.redis import db, Event
+from activities.nlp.parsers.type import get_unique_tags
 
 
 headers = {
@@ -276,10 +277,7 @@ def download_conceptnet():
         return nodes, edges
 
     # Get all the tags from the database
-    tags = set()
-    for pk in Event.all_pks():
-        event = Event.get(pk)
-        tags.update(event.tags.split(';'))
+    tags = get_unique_tags()
     print(f'Found {len(tags)} tags: {tags}')
 
     # Create the graph
