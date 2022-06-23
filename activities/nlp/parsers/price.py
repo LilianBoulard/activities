@@ -1,3 +1,7 @@
+"""
+TODO: use price-parser : https://github.com/scrapinghub/price-parser/
+"""
+
 import re
 
 from typing import Optional, Tuple, List
@@ -54,8 +58,12 @@ class PriceParser:
             # Keep only the first integer value
             for match in matches:
                 potential_price = self._clean_match(match)
-                if potential_price.isnumeric():
-                    found_prices.append(int(potential_price))
+                try:
+                    price = int(float(potential_price))
+                except ValueError:
+                    continue
+                else:
+                    found_prices.append(price)
             if not found_prices:
                 # If we did not find any integer value,
                 # print a warning and skip this price
