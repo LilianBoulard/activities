@@ -13,6 +13,7 @@ from pydantic import HttpUrl
 from datetime import datetime
 from redis_om import JsonModel, Field, Migrator, get_redis_connection
 
+from ..utils import get_redis_password
 from ..config import (redis_server_address, redis_server_port,
                       redis_server_config, timezone)
 
@@ -20,6 +21,7 @@ from ..config import (redis_server_address, redis_server_port,
 db = get_redis_connection(
     host=redis_server_address,
     port=redis_server_port,
+    password=get_redis_password(),
     db=0,
     **redis_server_config,
 )

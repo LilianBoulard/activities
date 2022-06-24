@@ -14,6 +14,7 @@ redis_server_port: int = 6379
 # Additional config parameters passed to the Redis server
 # See https://redis-py.readthedocs.io/en/stable/connections.html#redis.Redis
 redis_server_config: Dict[str, Any] = {}
+redis_conf_file: Path = Path('/etc/redis/redis.conf')
 
 secret_key_file: Path = project_root / 'secret_key'
 
