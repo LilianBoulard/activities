@@ -28,7 +28,6 @@ def _get_end_of_month() -> datetime:
         year = today.year
 
     date = datetime(year, month, 1)
-    print(f'End of month: {date}')
     return date
 
 

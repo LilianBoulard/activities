@@ -144,7 +144,7 @@ function remove_events(events) {
 
 function update_events(events) {
     // TODO: improve so that :
-    //  - it removes events that are already present and  should not anymore
+    //  - it removes events that are already present
     //  - it adds missing events
     // Currently, removes all elements and adds them back again
     display_all_events(events);
@@ -156,8 +156,7 @@ function on_load() {
         "Bonjour 😄 <br />" +
         "Je peux t'aider à trouver des évènements sur Paris ! ✨ <br />" +
         "Parles moi du type d'évènement qui te plairait, " +
-        "de ton budget, de la date qui te conviens " +
-        "et/ou de la localisation qui t'arrange !"
+        "de ton budget et/ou de la date qui te conviens !"
     )
     $.ajax({
         type: "POST",
