@@ -71,6 +71,7 @@ function update_pills() {
         url: "/get_request_info",
         contentType: "application/json",
         success: function(result) {
+            console.log(result);
             for (const [index, pill_info] of result.entries()) {
                 pill_list.innerHTML += (
                     "<div class='pill' id='pill_" + index + "'>" +
@@ -92,7 +93,6 @@ function display_all_events(events) {
     const event_list = document.getElementById("event_list");
     // TODO: limit number of events shown
     // TODO (even later): Make infinite scroll
-    update_pills();
     event_list.innerHTML = "";
     for (const event of events) {
         picto = "";
@@ -165,6 +165,7 @@ function on_load() {
         contentType: "application/json",
         success: function(result) {
             display_all_events(result.events);
+            update_pills();
         }
     });
 }
