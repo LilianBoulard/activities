@@ -36,7 +36,9 @@ services:
       - sql_bridge
 
   redis:
-    build: ./docker/redis
+    build:
+      context: .
+      dockerfile: ./docker/redis/Dockerfile
     container_name: redis
     environment:
       - TZ=Europe/Paris
@@ -48,7 +50,9 @@ services:
       - redis_bridge
 
   server:
-    build: ./docker/activities
+    build:
+      context: .
+      dockerfile: ./docker/activities/Dockerfile
     container_name: server
     restart: unless-stopped
     runtime: nvidia
@@ -69,7 +73,9 @@ services:
       - reverse_proxy_net
 
   server_dev:
-    build: ./docker/activities
+    build:
+      context: .
+      dockerfile: ./docker/activities/Dockerfile
     container_name: server_dev
     restart: unless-stopped
     runtime: nvidia
