@@ -12,7 +12,7 @@ An online demo will soon be available !
 First year master's degree Natural Language Processing project.
 
 This project uses
-- 🤖 [spaCy](https://spacy.io/), [Rasa](https://rasa.com/solutions/open-source-nlu-nlp/) and 🤗 [CamemBERT](https://huggingface.co/Jean-Baptiste/camembert-ner-with-dates) for the chatbot
+- 🤖 [spaCy](https://spacy.io/) for the chatbot
 - 🌶 [Flask](https://flask.palletsprojects.com/en/2.1.x/) for both frontend and backend
 - ⚡ an in-memory [Redis](https://redis.io/) database for lightning fast response times
 - 📚 a [MariaDB](https://mariadb.org/) SQL database to store usage data
@@ -23,11 +23,11 @@ and some HTML / CSS for the web interface's style and structure.
 
 ## 🙌 Authors
 
-- [Adrien Assoun](https://github.com/Arod-11)
-- [Lilian Boulard](https://github.com/LilianBoulard)
-- [Jary Vallimamode](https://github.com/JaryV)
-- [Mohamed Ba Komara](https://github.com/komswaga)
-- [Paul Jourdin](https://github.com/Paul-JD)
+- [Lilian Boulard](https://github.com/LilianBoulard) - Lead
+- [Adrien Assoun](https://github.com/Arod-11) - NLP & processes
+- [Jary Vallimamode](https://github.com/JaryV) - NLP
+- [Mohamed Ba Komara](https://github.com/komswaga) - DB & UI
+- [Paul Jourdin](https://github.com/Paul-JD) - NLP & UI
 
 ## 🤔 How does it work ?
 
@@ -47,10 +47,7 @@ Development is centered around [Flask](https://flask.palletsprojects.com/en/2.1.
 which is the web application framework we use.  
 A [Redis](https://redis.io/) database is used to store the datasets, 
 and a [MariaDB](https://mariadb.org/) database to record app usage.  
-The chatbot is powered by [spaCy](https://spacy.io/), 
-[Rasa](https://rasa.com/solutions/open-source-nlu-nlp/) and 
-🤗 [CamemBERT](https://huggingface.co/Jean-Baptiste/camembert-ner-with-dates) 
-with their machine learning magic ✨
+The chatbot is powered by [spaCy](https://spacy.io/) magic ✨
 
 ### 🤔 Design choices
 
@@ -60,12 +57,13 @@ Datasets wrote in Redis at runtime are afterwards read-only,
 therefore we don't care about the ACID properties of the database.  
 Furthermore, Redis is known to be extremely fast, which is a plus !
 
-#### Why spaCy, Rasa and CamemBERT ?
+#### Why spaCy ?
 
 spaCy provides pretrained French pipelines, which avoids us doing the tedious
 training part 😄  
-For a similar reason, we use CamemBERT as our Named Entity Recognition (NER) model.
-It helps us extract people, places, organizations and dates from natural language.
+We tried using [Rasa](https://rasa.com/open-source/) and 
+[🤗 CamemBERT](https://huggingface.co/Jean-Baptiste/camembert-ner-with-dates)
+but in the end it didn't fit our processes and what we wanted to do !
 
 #### Why Docker ?
 
@@ -92,3 +90,7 @@ git clone https://github.com/LilianBoulard/activities
 python docker/generate_passwords.py
 sudo docker-compose up -d
 ```
+
+and you should be good to go !
+
+If you need more information on this process, check out [our documentation](docker/README.md)
