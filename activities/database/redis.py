@@ -8,9 +8,10 @@ Redis resources:
 
 import json
 
+from typing import List
 from pydantic import HttpUrl
 from datetime import datetime
-from redis_om import HashModel, Field, Migrator, get_redis_connection
+from redis_om import JsonModel, Field, Migrator, get_redis_connection
 
 from ..config import (redis_server_address, redis_server_port,
                       redis_server_config, timezone)
@@ -28,7 +29,7 @@ db.ping()
 Migrator().run()
 
 
-class Event(HashModel):
+class Event(JsonModel):
     """
     Represents an event, which is a line in the `que-faire-a-paris-` dataset.
     Each field must have the same name as in the table.
@@ -40,7 +41,7 @@ class Event(HashModel):
     #description: str
     #lead_text: str
     url: HttpUrl
-    tags: str = Field(index=True)
+    tags: List[str] = Field(index=True)
 
     reservation_required: int  # 1 = yes ; 0 = no. See below for why no bool
     reservation_url: str

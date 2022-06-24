@@ -5,10 +5,31 @@ Implements a request capable of querying the database, given some criterion.
 from varname import nameof
 from functools import reduce
 from datetime import datetime
-from typing import List, Optional
+from typing import List, Optional, Set
 
 from .database.redis import Event
 from .nlp.parsers import DateParser
+
+
+def _get_end_of_month() -> datetime:
+    # Note: doesn't actually return the end of month,
+    # but the beginning of the month right after
+    today = datetime.today()
+
+    if today.day > 20:
+        month = today.month + 2
+    else:
+        month = today.month + 1
+
+    # If the target month loops back to 1, increment year
+    if month < today.month:
+        year = today.year + 1
+    else:
+        year = today.year
+
+    date = datetime(year, month, 1)
+    print(f'End of month: {date}')
+    return date
 
 
 class Request:
@@ -34,11 +55,11 @@ class Request:
     price_upper_bound: Optional[int] = None
 
     # Date criterion
-    date_lower_bound: Optional[datetime] = None
-    date_upper_bound: Optional[datetime] = None
+    date_lower_bound: Optional[datetime] = datetime.today()
+    date_upper_bound: Optional[datetime] = _get_end_of_month()
 
     # Theme / tag / type criterion
-    tags: Optional[List[str]] = None
+    tags: Optional[Set[str]] = None
 
     # Location criterion
     district: Optional[int] = None
@@ -82,9 +103,9 @@ class Request:
         # Date criteria
         if self.date_lower_bound is not None and self.date_upper_bound is not None:
             criterion.append(
-                (self.date_lower_bound.timestamp() <= Event.date_start <= self.date_upper_bound.timestamp())
+                (self.date_lower_bound.timestamp() <= Event.date_start) & (Event.date_start <= self.date_upper_bound.timestamp())
                 |
-                (self.date_lower_bound.timestamp() <= Event.date_end <= self.date_upper_bound.timestamp())
+                (self.date_lower_bound.timestamp() <= Event.date_end) & (Event.date_end <= self.date_upper_bound.timestamp())
             )
 
         # Tags criteria
@@ -95,9 +116,10 @@ class Request:
             # `"concert" in Event.tags and "jazz" in Event.tags`
             tags_criterion = []
             for tag in self.tags:
-                tags_criterion.append(tag in Event.tags)
-            tags_criteria = reduce(lambda occ, elem: occ & elem, tags_criterion)
-            criterion.append(tags_criteria)
+                tags_criterion.append(Event.tags << tag)
+            if len(tags_criterion) > 0:
+                tags_criteria = reduce(lambda occ, elem: occ & elem, tags_criterion)
+                criterion.append(tags_criteria)
 
         # Location criteria
         if self.district is not None:
@@ -146,6 +168,8 @@ class Request:
         # Maps a key name to an operation to perform to get the right type
         # This operation will not be executed if the value is None
         operations = dict(
+            tags=lambda val: set(val),
+
             price_lower_bound=lambda val: int(val),
             price_upper_bound=lambda val: int(val),
 
@@ -171,6 +195,8 @@ class Request:
         # This operation will not be executed if the value is None
         # If no operation is necessary, do not specify any
         operations = dict(
+            tags=lambda val: list(val),
+
             date_lower_bound=lambda val: val.isoformat(),
             date_upper_bound=lambda val: val.isoformat(),
         )
