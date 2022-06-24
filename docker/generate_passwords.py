@@ -13,7 +13,7 @@ if __name__ == "__main__":
     directory = Path(__file__).parent  # The current file's dir
     mysql_root_password_file = directory / 'secret_mysql_root_password'
     mysql_password_file = directory / 'secret_mysql_password'
-    redis_password_file = directory / 'redis.conf'
+    redis_password_file = directory / 'redis' / 'redis.conf'
 
     characters = ascii_letters + digits
 

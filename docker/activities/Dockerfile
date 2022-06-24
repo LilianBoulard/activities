@@ -1,9 +1,14 @@
 FROM python:3.9 AS intermediate
 
-RUN apt-get update -y
-RUN apt-get install -y git git-lfs
-
 WORKDIR /usr/src/app
+
+RUN apt-get update -qq
+RUN apt-get update -y
+RUN apt-get install -y git
+RUN rm -rf /var/cache/apt
+
+# Make a copy of the code at the time of build.
+# This directory will be updated with a git pull at runtime.
 COPY . .
 
 # Install Python dependencies

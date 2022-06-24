@@ -30,26 +30,25 @@ services:
       - MYSQL_USER=activities_user
       - TZ=Europe/Paris
     volumes:
-      - ./docker/activities/sql/config:/config
+      - ./docker/live/sql/config:/config
     restart: unless-stopped
     networks:
       - sql_bridge
 
   redis:
-    image: redislabs/redismod:latest
+    build: ./docker/redis
     container_name: redis
     environment:
       - TZ=Europe/Paris
     volumes:
-      - ./docker/activities/redis/data:/data
-      - ./docker/redis.conf:/etc/redis/redis.conf:ro
-    command: ["/etc/redis/redis.conf"]
+      - ./docker/live/redis/data:/data
+      - ./docker/redis/redis.conf:/etc/redis/redis.conf:ro
     restart: unless-stopped
     networks:
       - redis_bridge
 
   server:
-    build: .
+    build: ./docker/activities
     container_name: server
     restart: unless-stopped
     runtime: nvidia
@@ -70,7 +69,7 @@ services:
       - reverse_proxy_net
 
   server_dev:
-    build: .
+    build: ./docker/activities
     container_name: server_dev
     restart: unless-stopped
     runtime: nvidia
