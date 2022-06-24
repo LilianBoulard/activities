@@ -62,11 +62,8 @@ class Model:
         # Process the user input with the NLP pipeline
         document: Doc = self._nlp(user_input)
 
-        #tokens = [word.text for word in document]
-
         # Try extracting dates from chunks
         for chunk in document.noun_chunks:
-            print('chunk: ', chunk)
             date_range = self.date_parser(chunk.text)
             if date_range is not None:
                 # If a date could be extracted, process it
@@ -77,13 +74,11 @@ class Model:
                     nameof(self.request.date_lower_bound),
                     nameof(self.request.date_upper_bound),
                 })
-                print(f'Found {date_start} to {date_end}')
 
         # To process the type, extracts the nouns and lemmatizes them
         lemma_nouns = [word.lemma_ for word in document if word.pos_ == 'NOUN']
         # Remove duplicates
         lemma_nouns = set(lemma_nouns)
-        print([word.lemma_ for word in document], lemma_nouns)
         event_types = self.type_parser(lemma_nouns)
         if event_types is not None:
             if self.request.tags is None:
@@ -101,7 +96,6 @@ class Model:
                 nameof(self.request.price_upper_bound),
                 nameof(self.request.price_lower_bound),
             })
-            print(f'Found price range: {price_start} to {price_end}')
 
         return updated_fields
 
