@@ -39,11 +39,10 @@ def get_events(model: Model) -> List[Event]:
 
 @app.route('/get_all_events', methods=['POST'])
 def get_all_events():
-    # Create dummy model, and query with empty parameters, returning all events
+    # Use an empty model to query, returning all events
     model = Model()
     events = get_events(model)[:100]
     shuffle(events)
-    session['displayed_events'] = ';'.join([event['pk'] for event in events])
     return jsonify({'events': events})
 
 
