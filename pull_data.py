@@ -2,15 +2,16 @@
 Gets data from opendata.paris.fr and stores them in the Redis database.
 """
 
+import pickle
 import requests
 
 from functools import reduce
 from datetime import datetime
 from redis_om import Migrator
+from networkx import MultiDiGraph
 from dateutil.parser import isoparse
 from pydantic import ValidationError
 from typing import List, Optional, Generator
-from networkx import MultiDiGraph, write_gpickle
 
 from activities.config import timezone
 from activities.utils import decode_json
@@ -43,10 +44,10 @@ def get_event_from_row(row: dict) -> Optional[Event]:
     raw_tags = row.get('tags', None)
     if not raw_tags:
         return
-    tags = ';'.join([
+    tags = [
         tag.lower().replace('-', '_').replace(' ', '_')
         for tag in raw_tags.split(';')
-    ])
+    ]
 
     # Process reservation info
     reservation_required_val = row.get('access_type', None)
@@ -291,7 +292,7 @@ def download_conceptnet():
             graph.add_edge(u, v, key=key, weight=weight)
     print(f'Got {len(graph.nodes)} nodes and {len(graph.edges)} edges')
 
-    write_gpickle(graph, 'conceptnet.gpickle')
+    pickle.dump(graph, open('conceptnet.gpickle', 'wb'))
     print('Wrote graph on disk')
 
 
