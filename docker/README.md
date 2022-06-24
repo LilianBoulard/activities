@@ -41,13 +41,17 @@ let's actually put in practice the last point we mentioned !
 
 ## Use locally
 
-The first and simplest step is to create new passwords for the database:
+The first and simplest step is to create new passwords for the databases is to run:
 
 ```commandline
 python docker/generate_passwords.py
 ```
 
-the containers by running
+then, you might want to comment out a few lines in the `docker-compose.yml` file:
+- `runtime: nvidia` in `server` and `server_dev` if you don't have Nvidia GPUs on your machine
+- All lines refering to the `reverse_proxy_net` if you don't use a reverse-proxy
+
+Finally, launch the services with
 
 ```commandline
 sudo docker-compose up -d
