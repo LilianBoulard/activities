@@ -92,36 +92,39 @@ function display_all_events(events) {
     const event_list = document.getElementById("event_list");
     // TODO: limit number of events shown
     // TODO (even later): Make infinite scroll
+    update_pills();
     event_list.innerHTML = "";
     for (const event of events) {
-        picto="";
-        for(const tag of event.tags.split(";")){
-            if (tag == tag_array[0]){
+        picto = "";
+        for(const tag of event['tags']){
+            if (tag == tag_array[0]) {
                 console.log("1");
             }
-            }
+        }
         event_list.innerHTML += (
             "<li class='list-group-item' id='" + event.pk + "'>" +
-                "<div class='card row-hover pos-relative py-3 px-3 mb-3 border-warning border-top-0 border-right-0 border-bottom-0 rounded-0'>" +
-                    "<div class='row align-items-center'>" +
-                        "<div class='row align-items-left'>"+
-                            "<h5 class='text-primary'> " + event.title + " </h5>"+
-                        "</div>"+
-                        "<div class='row align-items-left'>"+
-                            "<p class='font-italic'> <i class='fa fa-map-marker' aria-hidden='true'></i> " + event.place + " </p>"+
-                        "</div>"+
-                        "<div class='row'>"+
-                            "<div class='col-sm'>"+
-                            event.tags.replaceAll(";",", ")+
-                            "</div>"+
-                            "<div class='col-sm'>"+
-                            "</div>"+
-                            "<div class='col-sm'>"+
-                                picto+
-                            "</div>"+
-                        "</div>"+
+                "<a target='_blank' href='" + event.url + "'>" +
+                    "<div class='card row-hover pos-relative py-3 px-3 mb-3 border-warning border-top-0 border-right-0 border-bottom-0 rounded-0'>" +
+                        "<div class='row align-items-center'>" +
+                            "<div class='row align-items-left'>" +
+                                "<h5 class='text-primary'> " + event.title + " </h5>" +
+                            "</div>" +
+                            "<div class='row align-items-left'>" +
+                                "<p class='font-italic'> <i class='fa fa-map-marker' aria-hidden='true'></i> " + event.place + " </p>" +
+                            "</div>" +
+                            "<div class='row'>" +
+                                "<div class='col-sm'>" +
+                                    event.tags +
+                                "</div>" +
+                                "<div class='col-sm'>" +
+                                "</div>" +
+                                "<div class='col-sm'>" +
+                                    picto +
+                                "</div>" +
+                            "</div>" +
+                        "</div>" +
                     "</div>" +
-                "</div>" +
+                "</a>" +
             "</li>"
         );
     }
