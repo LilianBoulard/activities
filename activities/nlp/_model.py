@@ -13,6 +13,7 @@ from __future__ import annotations
 
 from typing import Set
 from varname import nameof
+from spacy.tokens import Doc
 
 from ._nlp import NLP
 from ..answer import Answer
@@ -59,29 +60,36 @@ class Model:
         updated_fields = set()
 
         # Process the user input with the NLP pipeline
-        document = self._nlp(user_input)
+        document: Doc = self._nlp(user_input)
 
-        for entity in document:
+        #tokens = [word.text for word in document]
 
-            # Process the date
-            if entity['entity_group'] == 'DATE':
-                date_range = self.date_parser(entity['word'])
-                if date_range is not None:
-                    date_start, date_end = date_range  # Unpack
-                    self.request.date_lower_bound = date_start
-                    self.request.date_upper_bound = date_end
-                    updated_fields.update({
-                        nameof(self.request.date_lower_bound),
-                        nameof(self.request.date_upper_bound),
-                    })
-                    print(f'Found {date_start} to {date_end} for {entity["word"]}')
-                continue
+        # Try extracting dates from chunks
+        for chunk in document.noun_chunks:
+            print('chunk: ', chunk)
+            date_range = self.date_parser(chunk.text)
+            if date_range is not None:
+                # If a date could be extracted, process it
+                date_start, date_end = date_range  # Unpack
+                self.request.date_lower_bound = date_start
+                self.request.date_upper_bound = date_end
+                updated_fields.update({
+                    nameof(self.request.date_lower_bound),
+                    nameof(self.request.date_upper_bound),
+                })
+                print(f'Found {date_start} to {date_end}')
 
-            # Process the type
-            if entity['entity_group'] == 'TYPE':
-                #type_parser = TypeParser()
-                #extracted_type = type_parser(entity['word'])
-                continue
+        # To process the type, extracts the nouns and lemmatizes them
+        lemma_nouns = [word.lemma_ for word in document if word.pos_ == 'NOUN']
+        # Remove duplicates
+        lemma_nouns = set(lemma_nouns)
+        print([word.lemma_ for word in document], lemma_nouns)
+        event_types = self.type_parser(lemma_nouns)
+        if event_types is not None:
+            if self.request.tags is None:
+                self.request.tags = event_types
+            else:
+                self.request.tags.update(event_types)
 
         # Process the price
         price_found = self.price_parser(user_input)
