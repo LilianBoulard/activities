@@ -49,7 +49,7 @@ python docker/generate_passwords.py
 
 then, you might want to comment out a few lines in the `docker-compose.yml` file:
 - `runtime: nvidia` in `server` and `server_dev` if you don't have Nvidia GPUs on your machine
-- All lines refering to the `reverse_proxy_net` if you don't use a reverse-proxy
+- All lines referring to the `reverse_proxy_net` if you don't use a reverse-proxy
 
 Finally, launch the services with
 
@@ -60,19 +60,6 @@ sudo docker-compose up -d
 in the parent folder.
 
 At this point, the project is ready for a local usage.
-
-## Notes on usage and code versioning
-
-To use the code you're modifying directly (so, for development purposes), 
-use the `server_dev`'s port otherwise, to use the code from the GitHub repository, 
-use the `server`'s port.
-
-To keep your instance always up to date compared to the GitHub repository,
-you can set up a git-based stack on portainer.
-See [this blog post](https://tobiasfenster.io/use-portainer-to-deploy-and-update-docker-container-stacks-from-a-git-repo).
-
-In this case, you'll have to generate an env file with 
-`python docker/generate_password.py` and add it in portainer.
 
 ## Open the service on the Internet
 
