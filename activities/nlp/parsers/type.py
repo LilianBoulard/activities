@@ -25,9 +25,8 @@ def get_unique_tags() -> Set[str]:
 def load_conceptnet() -> MultiDiGraph:
     file = project_root.parent / 'conceptnet.gpickle'
     if not file.exists():
-        raise RuntimeError(
-            'Could not load ConceptNet graph, launch `pull_data.py`.'
-        )
+        print('Could not load ConceptNet graph, launch `pull_data.py`')
+        return MultiDiGraph()
     return pickle.load(file.open(mode='rb'))
 
 
