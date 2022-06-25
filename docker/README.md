@@ -48,7 +48,7 @@ python docker/generate_passwords.py
 ```
 
 then, you might want to comment out a few lines in the `docker-compose.yml` file:
-- `runtime: nvidia` in `server` and `server_dev` if you don't have Nvidia GPUs on your machine
+- `runtime: nvidia` in `server` if you don't have Nvidia GPUs on your machine
 - All lines referring to the `reverse_proxy_net` if you don't use a reverse-proxy
 
 Finally, launch the services with
