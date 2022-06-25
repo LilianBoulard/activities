@@ -18,3 +18,6 @@ redis_server_config: Dict[str, Any] = {}
 secret_key_file: Path = project_root / 'secret_key'
 
 timezone = _timezone('Europe/Paris')
+
+# Whether you are using a reverse proxy (nginx, apache, swag, etc.)
+behind_reverse_proxy: bool = True

@@ -1,5 +1,6 @@
 from activities.nlp import Model, NLP
 from activities.database.redis import Event
+from activities.config import behind_reverse_proxy
 from activities.utils import secret_key, decode_json
 
 from typing import List
@@ -7,7 +8,9 @@ from random import shuffle
 from flask import Flask, Blueprint, render_template, jsonify, request, session
 
 
-app = Blueprint('app', __name__)
+app = Blueprint('app', __name__,
+                static_folder='static', template_folder='templates',
+                url_prefix='/activities' if behind_reverse_proxy else '')
 
 
 def create_app():
@@ -17,8 +20,9 @@ def create_app():
     root_app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
     root_app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-    # For reverse proxies
-    root_app.config['APPLICATION_ROOT'] = '/activities'
+    # For reverse proxy
+    if behind_reverse_proxy:
+        root_app.config['APPLICATION_ROOT'] = '/activities'
 
     # Session config
     #app.config['SESSION_FILE_DIR']
@@ -40,7 +44,7 @@ def get_events(model: Model) -> List[Event]:
     return [event.to_json() for event in model.request.query()]
 
 
-@app.route('/get_all_events', methods=['POST'])
+@app.route('get_all_events', methods=['POST'])
 def get_all_events():
     # Use an empty model to query, returning all events
     model = Model()
@@ -49,7 +53,7 @@ def get_all_events():
     return jsonify({'events': events})
 
 
-@app.route('/')
+@app.route('')
 def index():
     # Create a new model instance
     model = Model()
@@ -59,8 +63,8 @@ def index():
     return render_template('index.html')
 
 
-@app.route('/nltkresponse', methods=['POST'])
-def nltkresponse():
+@app.route('nlp', methods=['POST'])
+def nlp():
     user_message: str = request.get_json()
     # Get model information from the session.
     # If there is no stored information, creates a new model.
@@ -84,7 +88,7 @@ def nltkresponse():
     })
 
 
-@app.route('/get_request_info', methods=['POST'])
+@app.route('get_request_info', methods=['POST'])
 def get_request_info():
     model_info = session.get('model_info', '')
     model = Model.from_json(decode_json(model_info))
