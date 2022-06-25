@@ -41,11 +41,11 @@ function create_bot_message(message) {
             "<img src='https://cdn.pixabay.com/photo/2017/10/24/00/39/bot-icon-2883144_1280.png' alt='avatar'" +
             "class='rounded-circle d-flex align-self-start me-3 shadow-1-strong' width='60'>" +
             "<div class='card'>" +
-            "<div class='card-body'>" +
-                "<p class='mb-0'>" +
-                    message +
-                "</p>" +
-            "</div>" +
+                "<div class='card-body'>" +
+                    "<p class='mb-0'>" +
+                        message +
+                    "</p>" +
+                "</div>" +
             "</div>" +
         "</li>"
     );
