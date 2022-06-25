@@ -17,6 +17,9 @@ def create_app():
     root_app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
     root_app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+    # For reverse proxies
+    root_app.config['APPLICATION_ROOT'] = '/activities'
+
     # Session config
     #app.config['SESSION_FILE_DIR']
     #app.config['SESSION_FILE_THRESHOLD']
