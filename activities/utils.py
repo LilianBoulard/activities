@@ -1,7 +1,7 @@
 import os
 import json
 
-from .config import secret_key_file, redis_conf_file
+from .config import secret_key_file
 
 from typing import List, Tuple, Dict
 from collections import defaultdict
@@ -11,21 +11,11 @@ def get_redis_password():
     """
     Reads the redis config and returns the password.
     """
-    if redis_conf_file.is_file():
-        with redis_conf_file.open('r') as fl:
-            for line in fl.readlines():
-                if line.startswith('requirepass'):
-                    _, password = line.split()
-                    return password
-            else:
-                raise ValueError(f'Could not find a "requirepass" statement '
-                                 f'in the config file {redis_conf_file}')
-    else:
-        raise FileNotFoundError(
-            f'Redis config file could not be found at {redis_conf_file!s} '
-            f'please modify it in the config if you are not using docker, '
-            f'otherwise, check the compose file. '
-        )
+    password = os.environ.get('REDIS_PASSWORD', '')
+    if not password:
+        raise RuntimeError('"REDIS_PASSWORD" env var is not set, '
+                           'please verify your setup')
+    return password
 
 
 def secret_key() -> bytes:

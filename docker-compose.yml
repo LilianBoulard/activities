@@ -20,40 +20,41 @@ services:
 
   mariadb:
     image: ghcr.io/linuxserver/mariadb
-    container_name: sql
+    container_name: activities_sql
     environment:
       - PUID=1000
       - PGID=1000
-      - FILE__MYSQL_ROOT_PASSWORD=./docker/secret_mysql_root_password
-      - FILE__MYSQL_PASSWORD=./docker/secret_mysql_password
       - MYSQL_DATABASE=activities
       - MYSQL_USER=activities_user
       - TZ=Europe/Paris
     volumes:
       - ./docker/live/sql/config:/config
     restart: unless-stopped
+    env_file: docker/stack.env
     networks:
       - sql_bridge
 
   redis:
     build:
       context: .
-      dockerfile: ./docker/redis/Dockerfile
-    container_name: redis
+      dockerfile: ./docker/redis_dockerfile
+    container_name: activities_redis
     environment:
       - TZ=Europe/Paris
     volumes:
       - ./docker/live/redis/data:/data
-      - ./docker/redis/redis.conf:/etc/redis/redis.conf:ro
+      - ./run_redis.sh:/data/run_redis.sh
+    env_file: docker/stack.env
     restart: unless-stopped
     networks:
       - redis_bridge
 
-  server:
+  activities:
     build:
       context: .
-      dockerfile: ./docker/activities/Dockerfile
-    container_name: server
+      dockerfile: ./docker/activities_dockerfile
+    container_name: activities
+    env_file: docker/stack.env
     restart: unless-stopped
     runtime: nvidia
     environment:
@@ -72,11 +73,12 @@ services:
       # Remove if you don't use a reverse-proxy on docker
       - reverse_proxy_net
 
-  server_dev:
+  activities_dev:
     build:
       context: .
-      dockerfile: ./docker/activities/Dockerfile
-    container_name: server_dev
+      dockerfile: ./docker/activities_dockerfile
+    container_name: activities_dev
+    env_file: docker/stack.env
     restart: unless-stopped
     runtime: nvidia
     environment:

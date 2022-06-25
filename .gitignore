@@ -146,8 +146,5 @@ docker/live/
 # Graph exports
 conceptnet.gpickle
 
-# Password files
-# Must be in sync with the file names in the script `docker/generate_passwords.py`
-docker/secret_mysql_root_password
-docker/secret_mysql_password
-docker/redis/redis.conf
+# Password file
+docker/stack.env

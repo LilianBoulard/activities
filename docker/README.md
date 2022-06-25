@@ -71,6 +71,9 @@ To keep your instance always up to date compared to the GitHub repository,
 you can set up a git-based stack on portainer.
 See [this blog post](https://tobiasfenster.io/use-portainer-to-deploy-and-update-docker-container-stacks-from-a-git-repo).
 
+In this case, you'll have to generate an env file with 
+`python docker/generate_password.py` and add it in portainer.
+
 ## Open the service on the Internet
 
 To open your instance on the Internet, you'll have to:

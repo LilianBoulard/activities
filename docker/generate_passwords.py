@@ -9,36 +9,23 @@ from random import choice
 from string import ascii_letters, digits
 
 
+characters = ascii_letters + digits
+
+
+def generate_pass(n: int = 16):
+    # Yes, I know, it's pseudo-random.
+    return md5((choice(characters) * n).encode('utf8')).hexdigest()[:n]
+
+
 if __name__ == "__main__":
     directory = Path(__file__).parent  # The current file's dir
-    mysql_root_password_file = directory / 'secret_mysql_root_password'
-    mysql_password_file = directory / 'secret_mysql_password'
-    redis_password_file = directory / 'redis' / 'redis.conf'
+    env_file = directory / 'stack.env'
 
-    characters = ascii_letters + digits
-
-    # Yes, I know, it's pseudo-random.
-    mysql_root_password = md5((choice(characters) * 16).encode('utf8')).hexdigest()[:16]
-    mysql_password = md5((choice(characters) * 16).encode('utf8')).hexdigest()[:16]
-    redis_password = md5((choice(characters) * 16).encode('utf8')).hexdigest()[:16]
-
-    if not mysql_root_password_file.is_file():
-        with mysql_root_password_file.open('w') as fl:
-            fl.write(mysql_root_password)
-            print(f'Wrote random password in {mysql_root_password_file}')
+    if not env_file.is_file():
+        with env_file.open('w') as fl:
+            fl.write(f'MYSQL_ROOT_PASSWORD={generate_pass()}\n')
+            fl.write(f'MYSQL_PASSWORD={generate_pass()}\n')
+            fl.write(f'REDIS_PASSWORD={generate_pass()}\n')
+            print(f'Wrote random passwords in {env_file}')
     else:
-        print(f'Ignoring {mysql_root_password_file!s} as it already exists')
-
-    if not mysql_password_file.is_file():
-        with mysql_password_file.open('w') as fl:
-            fl.write(mysql_password)
-            print(f'Wrote random password in {mysql_password_file}')
-    else:
-        print(f'Ignoring {mysql_password_file!s} as it already exists')
-
-    if not redis_password_file.is_file():
-        with redis_password_file.open('w') as fl:
-            fl.write(f'requirepass {redis_password}')
-            print(f'Wrote random password in {redis_password_file}')
-    else:
-        print(f'Ignoring {redis_password_file!s} as it already exists')
+        print(f'Ignoring {env_file!s} as it already exists')
