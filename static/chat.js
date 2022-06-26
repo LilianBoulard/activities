@@ -67,7 +67,7 @@ function update_pills() {
     // Populate it with info coming from server
     $.ajax({
         type: "POST",
-        url: "get_request_info",
+        url: "/get_request_info",
         contentType: "application/json",
         success: function(result) {
             console.log(result);
@@ -159,7 +159,7 @@ function on_load() {
     )
     $.ajax({
         type: "POST",
-        url: "get_all_events",
+        url: "/get_all_events",
         contentType: "application/json",
         success: function(result) {
             display_all_events(result.events);
@@ -191,7 +191,7 @@ function submit() {
     // Sends the user message to the server
     $.ajax({
         type: "POST",
-        url: "nlp",
+        url: "/nlp",
         data: JSON.stringify(user_message),
         contentType: "application/json",
         dataType: 'json',
