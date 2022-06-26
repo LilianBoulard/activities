@@ -44,7 +44,7 @@ def get_events(model: Model) -> List[Event]:
     return [event.to_json() for event in model.request.query()]
 
 
-@app.route('get_all_events', methods=['POST'])
+@app.route('/get_all_events', methods=['POST'])
 def get_all_events():
     # Use an empty model to query, returning all events
     model = Model()
@@ -53,7 +53,7 @@ def get_all_events():
     return jsonify({'events': events})
 
 
-@app.route('')
+@app.route('/')
 def index():
     # Create a new model instance
     model = Model()
@@ -63,7 +63,7 @@ def index():
     return render_template('index.html')
 
 
-@app.route('nlp', methods=['POST'])
+@app.route('/nlp', methods=['POST'])
 def nlp():
     user_message: str = request.get_json()
     # Get model information from the session.
@@ -88,7 +88,7 @@ def nlp():
     })
 
 
-@app.route('get_request_info', methods=['POST'])
+@app.route('/get_request_info', methods=['POST'])
 def get_request_info():
     model_info = session.get('model_info', '')
     model = Model.from_json(decode_json(model_info))
