@@ -5,7 +5,7 @@ personalized with the help of a chatbot.
 
 ## 🚀 Usage
 
-An online demo will soon be available !
+An online demo is available here: http://app.boulard.fr:8000/
 
 ## 🔎 About
 
