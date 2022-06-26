@@ -46,7 +46,7 @@ class TypeParser:
         for token in tokens:
 
             if token in self.unique_types:
-                tags.update(token)
+                tags.update({token})
                 continue
 
             if not self.graph.has_node(token):
