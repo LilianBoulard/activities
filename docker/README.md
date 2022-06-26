@@ -49,7 +49,8 @@ python docker/generate_passwords.py
 
 then, you might want to comment out a few lines in the `docker-compose.yml` file:
 - `runtime: nvidia` in `server` if you don't have Nvidia GPUs on your machine
-- All lines referring to the `reverse_proxy_net` if you don't use a reverse-proxy
+- All lines referring to the `reverse_proxy_net` if you don't use a reverse-proxy. 
+  In this case, also set `behind_reverse_proxy` to `False` in the file `activities/config.py`
 
 Finally, launch the services with
 
@@ -59,7 +60,8 @@ sudo docker-compose up -d
 
 in the parent folder.
 
-At this point, the project is ready for a local usage.
+At this point, the project is ready for a local usage, and you can access it 
+at the address `http://localhost:8000`.
 
 ## Open the service on the Internet
 
