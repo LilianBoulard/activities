@@ -23,13 +23,13 @@ tag_array = {
     "nature": "<i class='fa fa-tree fa-lg' aria-hidden='true'></i>",
     "peinture": "<i class='fa fa-paint-brush fa-lg' aria-hidden='true'></i>",
     "photo": "<i class='fa fa-camera-retro fa-lg' aria-hidden='true'></i>",
-    "salon": ""
+    "salon": "",
     "sciences": "",
     "solidarité": "<i class='fa fa-users fa-lg' aria-hidden='true'></i>",
     "spectacle_musical": "",
     "sport": "<i class='fa fa-futbol-o fa-lg' aria-hidden='true'></i>",
     "street_art": "<i class='fa fa-building fa-lg' aria-hidden='true'></i>",
-    "théâtre": "",
+    "théâtre": ""
 }
 
 
