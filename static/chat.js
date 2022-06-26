@@ -98,7 +98,10 @@ function display_all_events(events) {
 
         for(const tag of event.tags){
             if (tag_array[tag] != undefined){
-                picto += tag_array[tag] + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+                tag_picto = tag_array[tag];
+                if (tag_picto != "") {
+                    picto += tag_picto + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+                }
             }
         }
         event_list.innerHTML += (
@@ -146,6 +149,7 @@ function update_events(events) {
     //  - it removes events that are already present
     //  - it adds missing events
     // Currently, removes all elements and adds them back again
+    if (events.length === 0) { return; }
     display_all_events(events);
 }
 
